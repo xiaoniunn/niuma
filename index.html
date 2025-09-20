@@ -1,0 +1,937 @@
+
+
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>NIUMA - 牛马精神 | XLayer上的Meme币</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://cdn.jsdelivr.net/npm/font-awesome@4.7.0/css/font-awesome.min.css" rel="stylesheet">
+    <script src="js/chart.min.js"></script>
+    <!-- 配置Tailwind自定义主题   -->
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    colors: {
+                        primary: '#FF7A00', // 活力橙 - 代表能量与行动力
+                        secondary: '#1E293B', // 深蓝灰 - 代表稳重与专业
+                        accent: '#10B981', // 绿色 - 代表增长与希望
+                        dark: '#0F172A',
+                        light: '#F8FAFC'
+                    },
+                    fontFamily: {
+                        sans: ['Inter', 'system-ui', 'sans-serif'],
+                        display: ['Montserrat', 'sans-serif']
+                    },
+                }
+            }
+        }
+    </script>
+    <style type="text/tailwindcss">
+        @layer utilities {
+            .content-auto {
+                content-visibility: auto;
+            }
+            .text-shadow {
+                text-shadow: 0 2px 4px rgba(0,0,0,0.1);
+            }
+            .text-shadow-lg {
+                text-shadow: 0 4px 8px rgba(0,0,0,0.12), 0 2px 4px rgba(0,0,0,0.08);
+            }
+            .animate-float {
+                animation: float 6s ease-in-out infinite;
+            }
+            .animate-pulse-slow {
+                animation: pulse 4s cubic-bezier(0.4, 0, 0.6, 1) infinite;
+            }
+        }
+
+        @keyframes float {
+            0% { transform: translateY(0px); }
+            50% { transform: translateY(-20px); }
+            100% { transform: translateY(0px); }
+        }
+    </style>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Montserrat:wght@500;600;700;800&display=swap" rel="stylesheet">
+    <script src="js/language.js"></script>
+</head>
+<body class="bg-gradient-to-br from-dark to-secondary text-light antialiased">
+    <!-- 导航栏 -->
+    <header id="navbar" class="fixed w-full z-50 transition-all duration-300">
+        <div class="container mx-auto px-4 sm:px-6 lg:px-8">
+            <div class="flex justify-between items-center py-4">
+                <a href="#" class="flex items-center space-x-2">
+                    <img src="image/niuma.png" alt="NIUMA Logo" class="w-10 h-10">
+                    <span class="font-display font-bold text-2xl tracking-tight">NIUMA</span>
+                </a>
+                
+                <!-- 桌面导航 -->
+                <nav class="hidden md:flex items-center space-x-8">
+                    <a href="#about" class="text-light/80 hover:text-primary transition-colors" data-lang-key="nav-about">关于我们</a>
+                    <a href="#token" class="text-light/80 hover:text-primary transition-colors" data-lang-key="nav-token">代币信息</a>
+                    <a href="#community" class="text-light/80 hover:text-primary transition-colors" data-lang-key="nav-community">社区</a>
+                    <a href="#roadmap" class="text-light/80 hover:text-primary transition-colors" data-lang-key="nav-roadmap">路线图</a>
+                    <a href="https://web3.okx.com/ul/Igl5Ksd" target="_blank" class="bg-primary hover:bg-primary/90 text-white px-6 py-2 rounded-full font-medium transition-all transform hover:scale-105" data-lang-key="nav-buy">
+                        购买NIUMA
+                    </a>
+                    <div class="relative group">
+                        <button id="language-toggle" class="text-light/80 hover:text-primary transition-colors flex items-center">
+                            <i class="fa fa-globe mr-1"></i> <span data-lang-key="current-lang">中文</span> <i class="fa fa-caret-down ml-1"></i>
+                        </button>
+                        <div class="absolute right-0 mt-2 w-36 bg-dark/95 rounded-md shadow-lg overflow-hidden z-50 transform scale-0 group-hover:scale-100 transition-transform origin-top">
+                            <a href="#" id="lang-zh" class="block px-4 py-2 text-sm text-light hover:bg-primary/20 hover:text-primary">中文</a>
+                            <a href="#" id="lang-en" class="block px-4 py-2 text-sm text-light hover:bg-primary/20 hover:text-primary">English</a>
+                        </div>
+                    </div>
+                </nav>
+                
+                <!-- 移动端菜单按钮 -->
+                <button id="menu-toggle" class="md:hidden text-light focus:outline-none">
+                    <i class="fa fa-bars text-2xl"></i>
+                </button>
+            </div>
+        </div>
+        
+        <!-- 移动端导航菜单 -->
+        <div id="mobile-menu" class="md:hidden hidden bg-dark/95 backdrop-blur-md">
+            <div class="container mx-auto px-4 py-4 space-y-4">
+                <a href="#about" class="block text-light/80 hover:text-primary transition-colors py-2" data-lang-key="nav-about">关于我们</a>
+                <a href="#token" class="block text-light/80 hover:text-primary transition-colors py-2" data-lang-key="nav-token">代币信息</a>
+                <a href="#community" class="block text-light/80 hover:text-primary transition-colors py-2" data-lang-key="nav-community">社区</a>
+                <a href="#roadmap" class="block text-light/80 hover:text-primary transition-colors py-2" data-lang-key="nav-roadmap">路线图</a>
+                <a href="https://web3.okx.com/ul/Igl5Ksd" target="_blank" class="block bg-primary hover:bg-primary/90 text-white px-6 py-3 rounded-full font-medium text-center transition-all" data-lang-key="nav-buy">
+                    购买NIUMA
+                </a>
+                <div class="relative">
+                    <button id="mobile-language-toggle" class="block text-light/80 hover:text-primary transition-colors py-2 flex items-center">
+                        <i class="fa fa-globe mr-1"></i> <span data-lang-key="current-lang">中文</span> <i class="fa fa-caret-down ml-1"></i>
+                    </button>
+                    <div id="mobile-lang-dropdown" class="hidden absolute left-0 mt-2 w-36 bg-dark/95 rounded-md shadow-lg overflow-hidden z-50">
+                        <a href="#" id="mobile-lang-zh" class="block px-4 py-2 text-sm text-light hover:bg-primary/20 hover:text-primary">中文</a>
+                        <a href="#" id="mobile-lang-en" class="block px-4 py-2 text-sm text-light hover:bg-primary/20 hover:text-primary">English</a>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </header>
+
+    <main>
+        <!-- 英雄区域 -->
+        <section class="min-h-screen flex items-center pt-20 relative overflow-hidden">
+            <!-- 背景装饰 -->
+            <div class="absolute inset-0 overflow-hidden" style="background-image: url('image/hero-bg.svg'); background-size: cover; background-position: center;">
+                <div class="absolute -top-40 -right-40 w-96 h-96 bg-primary/20 rounded-full filter blur-3xl"></div>
+                <div class="absolute top-1/3 -left-20 w-72 h-72 bg-accent/20 rounded-full filter blur-3xl"></div>
+            </div>
+            
+            <div class="container mx-auto px-4 sm:px-6 lg:px-8 py-16 relative z-10">
+                <div class="grid md:grid-cols-2 gap-12 items-center">
+                    <div class="space-y-8 max-w-xl">
+                        <div>
+                            <span class="inline-block px-4 py-1 bg-primary/20 text-primary rounded-full text-sm font-medium mb-4" data-lang-key="hero-badge">
+                                XLayer上的Meme币
+                            </span>
+                            <h1 class="font-display font-bold text-[clamp(2.5rem,5vw,4rem)] leading-tight text-shadow-lg" data-lang-key="hero-heading">
+                                我们是<span class="text-primary">NIUMA</span><br>
+                                致敬每一个<span class="text-primary">牛马</span>
+                            </h1>
+                        </div>
+                        
+                        <p class="text-light/70 text-lg leading-relaxed" data-lang-key="hero-description">
+                            NIUMA币代表着勤劳、坚韧与团结的"牛马精神"。我们是社区的基石，用汗水铸就价值，在XLayer链上共创未来。
+                        </p>
+                        
+                        <div class="flex flex-wrap gap-4">
+                            <a href="https://web3.okx.com/ul/Igl5Ksd" target="_blank" class="bg-primary hover:bg-primary/90 text-white px-8 py-3 rounded-full font-medium transition-all transform hover:scale-105 flex items-center gap-2" data-lang-key="hero-button">
+                                <i class="fa fa-shopping-cart"></i> 立即购买
+                            </a>
+                            <a href="#about" class="bg-transparent border border-light/30 hover:border-primary text-light hover:text-primary px-8 py-3 rounded-full font-medium transition-all" data-lang-key="hero-button-learn">
+                                了解更多
+                            </a>
+                        </div>
+                        
+                        <div class="flex items-center gap-6 pt-4">
+                            <div class="flex -space-x-2">
+                                <img src="https://picsum.photos/id/1001/100" alt="社区成员" class="w-10 h-10 rounded-full border-2 border-dark">
+                                <img src="https://picsum.photos/id/1002/100" alt="社区成员" class="w-10 h-10 rounded-full border-2 border-dark">
+                                <img src="https://picsum.photos/id/1003/100" alt="社区成员" class="w-10 h-10 rounded-full border-2 border-dark">
+                                <img src="https://picsum.photos/id/1004/100" alt="社区成员" class="w-10 h-10 rounded-full border-2 border-dark">
+                                <div class="w-10 h-10 rounded-full bg-primary/20 text-primary border-2 border-dark flex items-center justify-center text-xs font-bold">
+                                    +2k
+                                </div>
+                            </div>
+                            <p class="text-light/60 text-sm" data-lang-key="join-community">加入2,000+社区成员</p>
+                        </div>
+                    </div>
+                    
+                    <div class="relative">
+                        <!-- 代币图像 -->
+                        <div class="relative animate-float">
+                            <div class="w-64 h-64 md:w-80 md:h-80 mx-auto rounded-full bg-gradient-to-br from-primary to-accent p-1 shadow-xl">
+                                <div class="w-full h-full rounded-full bg-dark flex items-center justify-center overflow-hidden">
+                                    <div class="text-center">
+                                        <div class="w-32 h-32 md:w-40 md:h-40 mx-auto rounded-full bg-primary/20 flex items-center justify-center mb-2">
+                                            <img src="image/niuma.png" alt="NIUMA Logo" style="width: 80%;">
+                                        </div>
+                                        <span class="font-display font-bold text-2xl md:text-3xl">NIUMA</span>
+                                    </div>
+                                </div>
+                            </div>
+                            
+                            <!-- 漂浮元素 -->
+                            <div class="absolute -top-6 -left-6 bg-secondary/80 backdrop-blur-sm p-3 rounded-lg border border-light/10 animate-pulse-slow">
+                                <p class="text-xs text-light/60" data-lang-key="token-supply-label">总供应量</p>
+                                <p class="font-bold" data-lang-key="token-supply-value"> 10 亿</p>
+                            </div>
+                            
+                            <div class="absolute -bottom-4 -right-4 bg-secondary/80 backdrop-blur-sm p-3 rounded-lg border border-light/10 animate-pulse-slow" style="animation-delay: 1s">
+                                <p class="text-xs text-light/60" data-lang-key="token-chain-label">链</p>
+                                <p class="font-bold flex items-center gap-1" data-lang-key="token-chain-value">
+                                    <i class="fa fa-link text-accent"></i> XLayer
+                                </p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- 滚动指示器 -->
+            <div class="absolute bottom-8 left-1/2 transform -translate-x-1/2 flex flex-col items-center animate-bounce">
+                <span class="text-light/60 text-sm mb-2" data-lang-key="scroll-down">向下滚动</span>
+                <i class="fa fa-chevron-down text-light/40"></i>
+            </div>
+        </section>
+
+        <!-- 关于我们 -->
+        <section id="about" class="py-20 relative">
+            <div class="container mx-auto px-4 sm:px-6 lg:px-8">
+                <div class="text-center max-w-3xl mx-auto mb-16">
+                    <span class="inline-block px-4 py-1 bg-primary/20 text-primary rounded-full text-sm font-medium mb-4" data-lang-key="about-badge">
+                        关于NIUMA
+                    </span>
+                    <h3 class="font-display font-bold text-[clamp(1.6rem,3vw,2.2rem)] mb-6" data-lang-key="about-heading">
+                        牛马觉醒：<span class="text-primary">从自嘲到信念，从工具人到造梦者</span>
+                    </h3>
+                    <p class="text-light/70 text-lg" data-lang-key="about-description">
+                         在 Web3 世界，我们不再是被定义的工具，而是自己的主人，是集体精神的觉醒。
+                    </p>
+                </div>
+                
+                <div class="grid md:grid-cols-3 gap-8">
+                    <!-- 特性1 -->
+                    <div class="bg-secondary/50 backdrop-blur-sm rounded-2xl p-8 border border-light/10 hover:border-primary/30 transition-all transform hover:-translate-y-1">
+                         <div class="w-14 h-14 rounded-xl bg-primary/20 flex items-center justify-center mb-6">
+                            <i class="fa fa-bolt text-2xl text-primary"></i>
+                        </div>
+                        <h3 class="font-display font-bold text-xl mb-3" data-lang-key="feature-1-title">自嘲与觉醒的起点</h3>
+                        <p class="text-light/70" data-lang-key="feature-1-desc">
+                            “牛马”这个词，在现实中曾是一种轻松的自嘲。但我们知道，这种幽默背后，是无数人默默的努力与坚持。$NIUMA 来了，它赋予了这个词全新的意义：一份向上的力量，一种创造未来的精神。我们将这份坚韧不拔的“牛马精神”带到去中心化的新世界，开启了我们的觉醒之旅。
+                        </p>
+                    </div>
+                    
+                    <!-- 特性2 -->
+                    <div class="bg-secondary/50 backdrop-blur-sm rounded-2xl p-8 border border-light/10 hover:border-primary/30 transition-all transform hover:-translate-y-1">
+                        <div class="w-14 h-14 rounded-xl bg-primary/20 flex items-center justify-center mb-6">
+                            <i class="fa fa-users text-2xl text-primary"></i>
+                        </div>
+                        <h3 class="font-display font-bold text-xl mb-3" data-lang-key="feature-2-title">信念与创造的行程</h3>
+                        <p class="text-light/70" data-lang-key="feature-2-desc">
+                            从一个轻松的梗，到数千次创作的文化符号，$NIUMA 的每一次成长，都凝聚着我们的坚定信念和无限创造力。我们勇于迎接挑战，用行动证明社区的力量能够战胜一切。$NIUMA 的每一步前行，都闪耀着我们对未来的憧憬和共同付出的光芒。
+                        </p>
+                    </div>
+                    
+                    <!-- 特性3 -->
+                    <div class="bg-secondary/50 backdrop-blur-sm rounded-2xl p-8 border border-light/10 hover:border-primary/30 transition-all transform hover:-translate-y-1">
+                         <div class="w-14 h-14 rounded-xl bg-primary/20 flex items-center justify-center mb-6">
+                            <i class="fa fa-link text-2xl text-primary"></i>
+                        </div>
+                        <h3 class="font-display font-bold text-xl mb-3" data-lang-key="feature-3-title">我们的宣言</h3>
+                        <p class="text-light/70" data-lang-key="feature-3-desc">
+                            $NIUMA 就是我们自己，是我们不愿止步的集体意识。这不仅仅是一场文化实验，更是我们的光明宣言，是每一个追求梦想的你我，共同书写的宏伟篇章。我们坚信，一个从梦想中觉醒的群体，终将创造出属于自己的伟大时代。
+                        </p>
+                    </div>
+                </div>
+                
+                <div class="mt-20 bg-gradient-to-r from-secondary to-dark rounded-2xl overflow-hidden">
+                    <div class="grid md:grid-cols-2">
+                        <div class="p-8 md:p-12 flex flex-col justify-center">
+                            <h3 class="font-display font-bold text-2xl mb-6" data-lang-key="story-title">我们的故事</h3>
+                            <p class="text-light/90 mb-4 leading-relaxed text-lg font-medium relative pl-6 border-l-2 border-primary/30" data-lang-key="story-p1">
+                                <span class="absolute -left-2 top-2 w-4 h-4 bg-primary rounded-full shadow-lg shadow-primary/50"></span>
+                                $NIUMA 社区，是你我的故事 —— 平凡人在 Web3 相遇，从此不再是螺丝钉，而是同路人。
+                            </p>
+                            <p class="text-light/80 leading-relaxed mt-4 relative pl-6 border-l-2 border-primary/20" data-lang-key="story-p2">
+                                <span class="absolute -left-1.5 top-2 w-3 h-3 bg-primary/70 rounded-full"></span>
+                                以东方 "牛马精神" 聚首，无华丽包装、无资本助推，凭热爱与憧憬，让每个成员用创意鲜活社区灵魂。
+                            </p>
+                            <p class="text-light/80 leading-relaxed mt-4 relative pl-6 border-l-2 border-primary/20" data-lang-key="story-p3">
+                                <span class="absolute -left-1.5 top-2 w-3 h-3 bg-primary/70 rounded-full"></span>
+                                共启 BASIS 计划：推出牛马周边，让链上信仰走进日常。
+                            </p>
+                            <p class="text-light/80 leading-relaxed mt-4 relative pl-6 border-l-2 border-primary/20" data-lang-key="story-p4">
+                                <span class="absolute -left-1.5 top-2 w-3 h-3 bg-primary/70 rounded-full"></span>
+                                并肩竞逐：搭建 Web3 市场、进驻主流电商，让牛马精神走向全球。
+                            </p>
+                            <p class="text-light/80 leading-relaxed mt-4 relative pl-6 border-l-2 border-primary/20" data-lang-key="story-p5">
+                                <span class="absolute -left-1.5 top-2 w-3 h-3 bg-primary/70 rounded-full"></span>
+                                社区共创 IP：探索 NFT 授权机制，让社区成为最大合伙人，共定品牌未来。
+                            </p>
+                            
+                            <div class="mt-8 flex items-center gap-4">
+                                <a href="#community" class="inline-flex items-center gap-2 text-primary hover:text-primary/80 font-medium transition-colors">
+                                    加入我们的社区 <i class="fa fa-arrow-right"></i>
+                                </a>
+                            </div>
+                        </div>
+                        <div class="relative h-64 md:h-auto overflow-hidden">
+                            <img src="image/tuanjie3.png" alt="社区建设者们" class="w-full h-full object-cover">
+                            <div class="absolute inset-0 bg-gradient-to-t from-dark to-transparent"></div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- 代币信息 -->
+        <section id="token" class="py-20 relative bg-dark/50">
+            <div class="absolute inset-0 overflow-hidden">
+                <div class="absolute bottom-0 right-0 w-96 h-96 bg-primary/10 rounded-full filter blur-3xl"></div>
+            </div>
+            
+            <div class="container mx-auto px-4 sm:px-6 lg:px-8 relative z-10">
+                <div class="text-center max-w-3xl mx-auto mb-16">
+                    <span class="inline-block px-4 py-1 bg-primary/20 text-primary rounded-full text-sm font-medium mb-4" data-lang-key="token-badge">
+                        代币详情
+                    </span>
+                    <h2 class="font-display font-bold text-[clamp(1.8rem,3vw,2.5rem)] mb-6" data-lang-key="token-heading">
+                        NIUMA <span class="text-primary">代币信息</span>
+                    </h2>
+                    <p class="text-light/70 text-lg" data-lang-key="token-description">
+                        了解NIUMA代币的基本信息、经济模型和技术细节
+                    </p>
+                </div>
+                
+                <div class="grid md:grid-cols-2 gap-12 items-center">
+                    <div>
+                        <div class="bg-secondary/50 backdrop-blur-sm rounded-2xl p-8 border border-light/10 mb-8">
+                            <div class="flex justify-between items-center mb-6 pb-6 border-b border-light/10">
+                                <h3 class="font-display font-bold text-xl" data-lang-key="token-basic-info">代币基本信息</h3>
+                                <span class="px-3 py-1 bg-accent/20 text-accent rounded-full text-xs font-medium">
+                                    XLayer
+                                </span>
+                            </div>
+                            
+                            <div class="space-y-4">
+                                <div class="flex justify-between">
+                                    <span class="text-light/60" data-lang-key="token-name-label">代币名称</span>
+                                    <span class="font-medium">NIUMA</span>
+                                </div>
+                                <div class="flex justify-between">
+                                    <span class="text-light/60" data-lang-key="token-contract-label">合约地址</span>
+                                    <span class="font-medium text-sm break-all max-w-[60%] text-right">
+                                        0x87669801a1fad6dad9db70d27ac752f452989667
+                                    </span>
+                                </div>
+                                <div class="flex justify-between">
+                                    <span class="text-light/60" data-lang-key="token-total-supply-label">总供应量</span>
+                                    <span class="font-medium" data-lang-key="token-total-supply-value">10亿 NIUMA</span>
+                                </div>
+                                <div class="flex justify-between">
+                                    <span class="text-light/60" data-lang-key="token-decimals-label">小数位数</span>
+                                    <span class="font-medium" data-lang-key="token-decimals-value">18</span>
+                                </div>
+                                <div class="flex justify-between">
+                                    <span class="text-light/60" data-lang-key="token-launch-time-label">发行时间</span>
+                                    <span class="font-medium" data-lang-key="token-launch-time-value">2025年Q3</span>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <div class="bg-secondary/50 backdrop-blur-sm rounded-2xl p-8 border border-light/10">
+                            <h3 class="font-display font-bold text-xl mb-6" data-lang-key="token-distribution">代币分配</h3>
+                            <div class="space-y-4">
+                                <div>
+                                    <div class="flex justify-between mb-1">
+                                        <span class="text-sm text-light/60" data-lang-key="token-community-reserve">社区储备</span>
+                                        <span class="text-sm font-medium">x%</span>
+                                    </div>
+                                    <div class="w-full h-2 bg-light/10 rounded-full overflow-hidden">
+                                        <div class="h-full bg-primary rounded-full" style="width: 50%"></div>
+                                    </div>
+                                </div>
+                                
+                               <div>
+                                    <div class="flex justify-between mb-1">
+                                        <span class="text-sm text-light/60" data-lang-key="token-liquidity">流动性</span>
+                                        <span class="text-sm font-medium">x%</span>
+                                    </div>
+                                    <div class="w-full h-2 bg-light/10 rounded-full overflow-hidden">
+                                        <div class="h-full bg-accent rounded-full" style="width: 25%"></div>
+                                    </div>
+                                </div>
+                                
+                                <div>
+                                    <div class="flex justify-between mb-1">
+                                        <span class="text-sm text-light/60" data-lang-key="token-team-advisors">团队与顾问</span>
+                                        <span class="text-sm font-medium">x%</span>
+                                    </div>
+                                    <div class="w-full h-2 bg-light/10 rounded-full overflow-hidden">
+                                        <div class="h-full bg-blue-500 rounded-full" style="width: 15%"></div>
+                                    </div>
+                                </div>
+                                
+                                <div>
+                                    <div class="flex justify-between mb-1">
+                                        <span class="text-sm text-light/60" data-lang-key="token-marketing">营销与合作</span>
+                                        <span class="text-sm font-medium">x%</span>
+                                    </div>
+                                    <div class="w-full h-2 bg-light/10 rounded-full overflow-hidden">
+                                        <div class="h-full bg-purple-500 rounded-full" style="width: 10%"></div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div>
+                        <div class="bg-secondary/50 backdrop-blur-sm rounded-2xl p-8 border border-light/10 mb-8">
+                            <h3 class="font-display font-bold text-xl mb-6" data-lang-key="price-chart">价格图表</h3>
+                            <div class="h-64">
+                                <canvas id="priceChart"></canvas>
+                            </div>
+                        </div>
+                        
+                        <div class="bg-gradient-to-r from-primary/20 to-accent/20 rounded-2xl p-8 border border-primary/20">
+                            <h3 class="font-display font-bold text-xl mb-4" data-lang-key="why-xlayer">为什么选择XLayer？</h3>
+                            <p class="text-light/70 mb-6" data-lang-key="xlayer-description">
+                                XLayer是OKX推出的高性能公链，为NIUMA提供了安全、快速、低成本的交易体验，是meme币发展的理想平台。
+                            </p>
+                            
+                            <ul class="space-y-3">
+                                <li class="flex items-start gap-3">
+                                    <i class="fa fa-check-circle text-accent mt-1"></i>
+                                    <span class="text-light/80" data-lang-key="xlayer-feature-1">高性能交易处理，支持高TPS</span>
+                                </li>
+                                <li class="flex items-start gap-3">
+                                    <i class="fa fa-check-circle text-accent mt-1"></i>
+                                    <span class="text-light/80" data-lang-key="xlayer-feature-2">超低Gas费，适合小额交易</span>
+                                </li>
+                                <li class="flex items-start gap-3">
+                                    <i class="fa fa-check-circle text-accent mt-1"></i>
+                                    <span class="text-light/80" data-lang-key="xlayer-feature-3">与OKX生态深度整合，易于上所</span>
+                                </li>
+                                <li class="flex items-start gap-3">
+                                    <i class="fa fa-check-circle text-accent mt-1"></i>
+                                    <span class="text-light/80" data-lang-key="xlayer-feature-4">强大的安全保障和去中心化特性</span>
+                                </li>
+                            </ul>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- 社区部分 -->
+        <section id="community" class="py-20 relative">
+            <div class="container mx-auto px-4 sm:px-6 lg:px-8">
+                <div class="text-center max-w-3xl mx-auto mb-16">
+                    <span class="inline-block px-4 py-1 bg-primary/20 text-primary rounded-full text-sm font-medium mb-4" data-lang-key="community-power">
+                        社区力量
+                    </span>
+                    <h2 class="font-display font-bold text-[clamp(1.8rem,3vw,2.5rem)] mb-6">
+                        <span data-lang-key="join-our">加入我们的</span><span class="text-primary" data-lang-key="niuma-community">牛马社区</span>
+                    </h2>
+                    <p class="text-light/70 text-lg" data-lang-key="community-strength">
+                        NIUMA的力量来自于社区，每一位成员都是我们大家庭的一部分
+                    </p>
+                </div>
+                
+                <div class="grid md:grid-cols-2 gap-12 mb-16">
+                    <a href="https://t.me/NIUMANEW/1" target="_blank" class="group bg-secondary/50 backdrop-blur-sm rounded-2xl p-8 border border-light/10 hover:border-primary/30 transition-all flex flex-col items-center text-center transform hover:-translate-y-1">
+                        <div class="w-16 h-16 rounded-full bg-[#2CA5E0]/20 flex items-center justify-center mb-6 group-hover:bg-[#2CA5E0]/30 transition-colors">
+                            <i class="fa fa-telegram text-2xl text-[#2CA5E0]"></i>
+                        </div>
+                        <h3 class="font-display font-bold text-xl mb-3" data-lang-key="telegram">Telegram</h3>
+                        <p class="text-light/70 mb-4" data-lang-key="telegram-description">
+                            加入我们的Telegram群组，获取最新消息和社区讨论
+                        </p>
+                        <span class="text-primary group-hover:underline flex items-center gap-1" data-lang-key="join-now">
+                            立即加入 <i class="fa fa-external-link"></i>
+                        </span>
+                    </a>
+                    
+                    <!--<a href="https://discord.gg/niuma" target="_blank" class="group bg-secondary/50 backdrop-blur-sm rounded-2xl p-8 border border-light/10 hover:border-primary/30 transition-all flex flex-col items-center text-center transform hover:-translate-y-1">-->
+                    <!--    <div class="w-16 h-16 rounded-full bg-[#5865F2]/20 flex items-center justify-center mb-6 group-hover:bg-[#5865F2]/30 transition-colors">-->
+                    <!--        <i class="fa fa-discord text-2xl text-[#5865F2]"></i>-->
+                    <!--    </div>-->
+                    <!--    <h3 class="font-display font-bold text-xl mb-3">Discord</h3>-->
+                    <!--    <p class="text-light/70 mb-4">-->
+                    <!--        在Discord上与其他社区成员互动，参与话题讨论-->
+                    <!--    </p>-->
+                    <!--    <span class="text-primary group-hover:underline flex items-center gap-1">-->
+                    <!--        立即加入 <i class="fa fa-external-link"></i>-->
+                    <!--    </span>-->
+                    <!--</a>-->
+                    
+                    <a href="https://x.com/NIUMA_Xlayer" target="_blank" class="group bg-secondary/50 backdrop-blur-sm rounded-2xl p-8 border border-light/10 hover:border-primary/30 transition-all flex flex-col items-center text-center transform hover:-translate-y-1">
+                        <div class="w-16 h-16 rounded-full bg-[#1DA1F2]/20 flex items-center justify-center mb-6 group-hover:bg-[#1DA1F2]/30 transition-colors">
+                            <i class="fa fa-twitter text-2xl text-[#1DA1F2]"></i>
+                        </div>
+                        <h3 class="font-display font-bold text-xl mb-3" data-lang-key="twitter">Twitter</h3>
+                        <p class="text-light/70 mb-4" data-lang-key="twitter-description">
+                            关注我们的Twitter，获取最新动态和市场信息
+                        </p>
+                        <span class="text-primary group-hover:underline flex items-center gap-1" data-lang-key="follow-now">
+                            立即关注 <i class="fa fa-external-link"></i>
+                        </span>
+                    </a>
+                </div>
+                
+                <div class="bg-secondary/50 backdrop-blur-sm rounded-2xl p-8 md:p-12 border border-light/10">
+                    <h3 class="font-display font-bold text-2xl mb-8 text-center" data-lang-key="community-activities">社区活动</h3>
+                    
+                    <div class="grid md:grid-cols-2 gap-6">
+                        <div class="bg-dark/50 rounded-xl p-6 border border-light/5 hover:border-primary/20 transition-all">
+                            <div class="flex items-start gap-4">
+                                <div class="w-16 h-16 rounded-lg bg-primary/10 flex-shrink-0 flex items-center justify-center">
+                                    <i class="fa fa-calendar text-primary text-xl"></i>
+                                </div>
+                                <div>
+                                    <h4 class="font-bold text-lg mb-2" data-lang-key="niuma-ama">NIUMA线上AMA</h4>
+                                    <p class="text-light/70 text-sm mb-3" data-lang-key="ama-description">
+                                        与项目团队面对面交流，解答社区疑问，分享未来规划
+                                    </p>
+                                    <div class="flex items-center gap-3 text-sm text-light/60">
+                                        <span class="flex items-center gap-1"><i class="fa fa-clock-o"></i> <span data-lang-key="coming-soon">敬请期待</span></span>
+                                        <span class="flex items-center gap-1"><i class="fa fa-map-marker"></i> <span data-lang-key="telegram">Telegram</span></span>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <div class="bg-dark/50 rounded-xl p-6 border border-light/5 hover:border-primary/20 transition-all">
+                            <div class="flex items-start gap-4">
+                                <div class="w-16 h-16 rounded-lg bg-primary/10 flex-shrink-0 flex items-center justify-center">
+                                    <i class="fa fa-trophy text-primary text-xl"></i>
+                                </div>
+                                <div>
+                                    <h4 class="font-bold text-lg mb-2" data-lang-key="niuma-promotion">NIUMA推广竞赛</h4>
+                                    <p class="text-light/70 text-sm mb-3" data-lang-key="promotion-description">
+                                        邀请好友加入社区，赢取丰厚NIUMA奖励，排名前100名均可获奖
+                                    </p>
+                                    <div class="flex items-center gap-3 text-sm text-light/60">
+                                        <span class="flex items-center gap-1"><i class="fa fa-clock-o"></i> <span data-lang-key="coming-soon">敬请期待</span></span>
+                                        <span class="flex items-center gap-1"><i class="fa fa-gift"></i> <span data-lang-key="reward-amount">100万NIUMA</span></span>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- 路线图 -->
+        <section id="roadmap" class="py-20 relative bg-dark/50">
+            <div class="absolute inset-0 overflow-hidden">
+                <div class="absolute top-0 left-0 w-96 h-96 bg-accent/10 rounded-full filter blur-3xl"></div>
+            </div>
+            
+            <div class="container mx-auto px-4 sm:px-6 lg:px-8 relative z-10">
+                <div class="text-center max-w-3xl mx-auto mb-16">
+                    <span class="inline-block px-4 py-1 bg-primary/20 text-primary rounded-full text-sm font-medium mb-4" data-lang-key="future-planning">
+                        未来规划
+                    </span>
+                    <h2 class="font-display font-bold text-[clamp(1.8rem,3vw,2.5rem)] mb-6">
+                        <span data-lang-key="niuma">NIUMA</span> <span class="text-primary" data-lang-key="roadmap">路线图</span>
+                    </h2>
+                    <p class="text-light/70 text-lg" data-lang-key="roadmap-description">
+                        我们的发展计划，与社区共同成长
+                    </p>
+                </div>
+                
+                <div class="relative">
+                    <!-- 连接线 -->
+                    <div class="hidden md:block absolute left-1/2 top-0 bottom-0 w-1 bg-primary/30 transform -translate-x-1/2"></div>
+                    
+                    <!-- 阶段1 -->
+                    <div class="relative mb-16 md:mb-24">
+                        <div class="flex flex-col md:flex-row items-center">
+                            <div class="md:w-1/2 md:pr-12 md:text-right order-2 md:order-1 mt-8 md:mt-0">
+                                <span class="inline-block px-3 py-1 bg-primary/20 text-primary rounded-full text-xs font-medium mb-3" data-lang-key="completed">
+                                    已完成
+                                </span>
+                                <h3 class="font-display font-bold text-2xl mb-3" data-lang-key="phase-one-title">阶段一：夯实基础，塑造品牌</h3>
+                                <p class="text-light/70 mb-4" data-lang-key="phase-one-description">
+                                    这是我们新征程的起点，我们将把每一个基础打牢。
+                                </p>
+                                <ul class="space-y-2 text-light/70 md:ml-auto md:text-right">
+                                    <li class="flex items-center md:justify-end gap-2">
+                                        <span class="md:order-2" data-lang-key="phase-one-item-1">IP 具象化： 打造独一无二的牛马IP角色，让我们的精神有血有肉，拥有全球认可的面孔。</span>
+                                        <i class="fa fa-check text-accent md:order-1"></i>
+                                    </li>
+                                    <li class="flex items-center md:justify-end gap-2">
+                                        <span class="md:order-2" data-lang-key="phase-one-item-2">品牌化： 推动版权申请、建立官网，让 $NIUMA 成为一个不容质疑的文化品牌。</span>
+                                        <i class="fa fa-check text-accent md:order-1"></i>
+                                    </li>
+                                    <li class="flex items-center md:justify-end gap-2">
+                                        <span class="md:order-2" data-lang-key="phase-one-item-3">双线出击： 在 Web2（微信职场表情包）和 Web3（Meme 包）同时引爆，让牛马精神渗透到每一个角落。</span>
+                                        <i class="fa fa-check text-accent md:order-1"></i>
+                                    </li>
+                                </ul>
+                            </div>
+                            
+                            <div class="md:w-12 flex justify-center order-1 md:order-2">
+                                <div class="w-10 h-10 rounded-full bg-primary flex items-center justify-center z-10">
+                                    <span class="font-bold">1</span>
+                                </div>
+                            </div>
+                            
+                            <div class="md:w-1/2 md:pl-12 order-3 hidden md:block"></div>
+                        </div>
+                    </div>
+                    
+                    <!-- 阶段2 -->
+                    <div class="relative mb-16 md:mb-24">
+                        <div class="flex flex-col md:flex-row items-center">
+                            <div class="md:w-1/2 md:pr-12 hidden md:block"></div>
+                            
+                            <div class="md:w-12 flex justify-center order-1 md:order-2">
+                                <div class="w-10 h-10 rounded-full bg-primary flex items-center justify-center z-10">
+                                    <span class="font-bold">2</span>
+                                </div>
+                            </div>
+                            
+                            <div class="md:w-1/2 md:pl-12 order-2 md:order-3 mt-8 md:mt-0">
+                                <span class="inline-block px-3 py-1 bg-accent/20 text-accent rounded-full text-xs font-medium mb-3" data-lang-key="in-progress">
+                                    进行中
+                                </span>
+                                <h3 class="font-display font-bold text-2xl mb-3" data-lang-key="phase-two-title">阶段二：价值落地，走向实体</h3>
+                                <p class="text-light/70 mb-4" data-lang-key="phase-two-description">
+                                    在这一阶段，我们将把精神力量转化为 tangible（可触及的）的价值。
+                                </p>
+                                <ul class="space-y-2 text-light/70">
+                                    <li class="flex items-center gap-2">
+                                        <i class="fa fa-check text-accent"></i>
+                                        <span data-lang-key="phase-two-item-1">周边孵化： 推出首批牛马品牌周边，让信仰不再只存在于链上，而是走进你的日常生活。</span>
+                                    </li>
+                                    <li class="flex items-center gap-2">
+                                        <i class="fa fa-spinner fa-spin text-primary"></i>
+                                        <span data-lang-key="phase-two-item-2">渠道全覆盖： 搭建 Web3 市场，并进驻淘宝等主流电商平台，让牛马精神走向全球。</span>
+                                    </li>
+                                    <li class="flex items-center gap-2">
+                                        <i class="fa fa-spinner fa-spin text-primary"></i>
+                                        <span data-lang-key="phase-two-item-3">社区共创： 探索基于 NFT 的 IP 授权机制，让社区成为我们品牌最大的合伙人，共同决定IP的未来发展。</span>
+                                    </li>
+                                </ul>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <!-- 阶段3 -->
+                    <div class="relative mb-16 md:mb-24">
+                        <div class="flex flex-col md:flex-row items-center">
+                            <div class="md:w-1/2 md:pr-12 md:text-right order-2 md:order-1 mt-8 md:mt-0">
+                                <span class="inline-block px-3 py-1 bg-light/20 text-light rounded-full text-xs font-medium mb-3" data-lang-key="planned">
+                                    计划中
+                                </span>
+                                <h3 class="font-display font-bold text-2xl mb-3" data-lang-key="phase-three-title">阶段三：文化构建，内容为王</h3>
+                                <p class="text-light/70 mb-4" data-lang-key="phase-three-description">
+                                    我们将从产品向内容生态延伸，打造一个拥有完整世界观的文化帝国。
+
+                                </p>
+                                <ul class="space-y-2 text-light/70 md:ml-auto md:text-right">
+                                    <li class="flex items-center md:justify-end gap-2">
+                                        <span class="md:order-2" data-lang-key="phase-three-item-1">内容矩阵： 打造完整的牛马世界观，包括漫画、动画短片和故事线，让我们的故事能够永流传。</span>
+                                        <i class="fa fa-circle-o text-light/40 md:order-1"></i>
+                                    </li>
+                                    <li class="flex items-center md:justify-end gap-2">
+                                        <span class="md:order-2" data-lang-key="phase-three-item-2">跨界联动： 与其他文化品牌和项目深度合作，共同推出联名产品或活动，将牛马文化推向更广阔的圈层。</span>
+                                        <i class="fa fa-circle-o text-light/40 md:order-1"></i>
+                                    </li>
+                                    <li class="flex items-center md:justify-end gap-2">
+                                        <span class="md:order-2" data-lang-key="phase-three-item-3">IP 授权： 开放IP授权合作，让更多创意者能够基于牛马精神进行再创作，丰富整个文化生态。</span>
+                                        <i class="fa fa-circle-o text-light/40 md:order-1"></i>
+                                    </li>
+                                </ul>
+                            </div>
+                            
+                            <div class="md:w-12 flex justify-center order-1 md:order-2">
+                                <div class="w-10 h-10 rounded-full bg-primary flex items-center justify-center z-10">
+                                    <span class="font-bold">3</span>
+                                </div>
+                            </div>
+                            
+                            <div class="md:w-1/2 md:pl-12 order-3 hidden md:block"></div>
+                        </div>
+                    </div>
+                    
+                    <!-- 阶段4 -->
+                    <div class="relative">
+                        <div class="flex flex-col md:flex-row items-center">
+                            <div class="md:w-1/2 md:pr-12 hidden md:block"></div>
+                            
+                            <div class="md:w-12 flex justify-center order-1 md:order-2">
+                                <div class="w-10 h-10 rounded-full bg-primary flex items-center justify-center z-10">
+                                    <span class="font-bold">4</span>
+                                </div>
+                            </div>
+                            
+                            <div class="md:w-1/2 md:pl-12 order-2 md:order-3 mt-8 md:mt-0">
+                                <span class="inline-block px-3 py-1 bg-light/20 text-light rounded-full text-xs font-medium mb-3" data-lang-key="vision">
+                                    愿景
+                                </span>
+                                <h3 class="font-display font-bold text-2xl mb-3" data-lang-key="phase-four-title">阶段四：生态繁荣，价值永存</h3>
+                                <p class="text-light/70 mb-4" data-lang-key="phase-four-description">
+                                    这是我们最长远的愿景，我们将建立一个可持续、能自我acee的利润分配机制，让每一位社区成员都能分享到生态成长的红利。
+
+                                </p>
+                                <ul class="space-y-2 text-light/70">
+                                    <li class="flex items-center gap-2">
+                                        <i class="fa fa-circle-o text-light/40"></i>
+                                        <span data-lang-key="phase-four-item-1">价值闭环： 将文化价值与金融价值深度结合，建立一套可持续的利润分配机制，让每一位社区成员都能分享到生态成长的红利。</span>
+                                    </li>
+                                    <li class="flex items-center gap-2">
+                                        <i class="fa fa-circle-o text-light/40"></i>
+                                        <span data-lang-key="phase-four-item-2">DAO 治理： 逐步建立一个完全去中心化的 DAO 治理结构，将项目的最终决策权交到社区手中。</span>
+                                    </li>
+                                    <li class="flex items-center gap-2">
+                                        <i class="fa fa-circle-o text-light/40"></i>
+                                        <span data-lang-key="phase-four-item-3">最终愿景： 让 $NIUMA 不再是一个 Meme，而是一个能持续创造真实价值、改变世界的文化品牌，永远传承"牛马"的坚韧精神。</span>
+                                    </li>
+                                </ul>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- 如何购买 -->
+        <section id="buy" class="py-20 relative">
+            <div class="container mx-auto px-4 sm:px-6 lg:px-8">
+                <div class="text-center max-w-3xl mx-auto mb-16">
+                    <span class="inline-block px-4 py-1 bg-primary/20 text-primary rounded-full text-sm font-medium mb-4" data-lang-key="buy-badge">
+                        加入我们
+                    </span>
+                    <h2 class="font-display font-bold text-[clamp(1.8rem,3vw,2.5rem)] mb-6" data-lang-key="buy-title">
+                        如何购买<span class="text-primary">NIUMA</span>
+                    </h2>
+                    <p class="text-light/70 text-lg" data-lang-key="buy-description">
+                        简单几步，即可成为NIUMA社区的一员
+                    </p>
+                </div>
+                
+                <div class="grid md:grid-cols-4 gap-6">
+                    <!-- 步骤1 -->
+                    <div class="bg-secondary/50 backdrop-blur-sm rounded-2xl p-8 border border-light/10 relative">
+                        <div class="absolute -top-5 -left-5 w-10 h-10 rounded-full bg-primary flex items-center justify-center font-bold">
+                            1
+                        </div>
+                        <div class="w-16 h-16 rounded-xl bg-primary/20 flex items-center justify-center mb-6">
+                            <i class="fa fa-wallet text-2xl text-primary"></i>
+                        </div>
+                        <h3 class="font-display font-bold text-xl mb-3" data-lang-key="buy-step-1-title">创建钱包</h3>
+                        <p class="text-light/70 text-sm" data-lang-key="buy-step-1-desc">
+                            下载并安装支持XLayer链的钱包，如MetaMask、OKX Wallet等，并创建或导入你的钱包。
+                        </p>
+                    </div>
+                    
+                    <!-- 步骤2 -->
+                    <div class="bg-secondary/50 backdrop-blur-sm rounded-2xl p-8 border border-light/10 relative">
+                        <div class="absolute -top-5 -left-5 w-10 h-10 rounded-full bg-primary flex items-center justify-center font-bold">
+                            2
+                        </div>
+                        <div class="w-16 h-16 rounded-xl bg-primary/20 flex items-center justify-center mb-6">
+                            <i class="fa fa-exchange text-2xl text-primary"></i>
+                        </div>
+                        <h3 class="font-display font-bold text-xl mb-3" data-lang-key="buy-step-2-title">获取OKB</h3>
+                        <p class="text-light/70 text-sm" data-lang-key="buy-step-2-desc">
+                            在OKX等交易所购买XLayer链的原生代币OKB，作为gas费用，并转账到你的钱包。
+                        </p>
+                    </div>
+                    
+                    <!-- 步骤3 -->
+                    <div class="bg-secondary/50 backdrop-blur-sm rounded-2xl p-8 border border-light/10 relative">
+                        <div class="absolute -top-5 -left-5 w-10 h-10 rounded-full bg-primary flex items-center justify-center font-bold">
+                            3
+                        </div>
+                        <div class="w-16 h-16 rounded-xl bg-primary/20 flex items-center justify-center mb-6">
+                            <i class="fa fa-shopping-bag text-2xl text-primary"></i>
+                        </div>
+                        <h3 class="font-display font-bold text-xl mb-3" data-lang-key="buy-step-3-title">购买NIUMA</h3>
+                        <p class="text-light/70 text-sm" data-lang-key="buy-step-3-desc">
+                            在支持XLayer链的去中心化交易所（如OKX DEX）中，使用OKB兑换NIUMA代币。
+                        </p>
+                    </div>
+                    
+                    <!-- 步骤4 -->
+                    <div class="bg-secondary/50 backdrop-blur-sm rounded-2xl p-8 border border-light/10 relative">
+                        <div class="absolute -top-5 -left-5 w-10 h-10 rounded-full bg-primary flex items-center justify-center font-bold">
+                            4
+                        </div>
+                        <div class="w-16 h-16 rounded-xl bg-primary/20 flex items-center justify-center mb-6">
+                            <i class="fa fa-users text-2xl text-primary"></i>
+                        </div>
+                        <h3 class="font-display font-bold text-xl mb-3" data-lang-key="buy-step-4-title">加入社区</h3>
+                        <p class="text-light/70 text-sm" data-lang-key="buy-step-4-desc">
+                            加入我们的Telegram 参与讨论，获取最新资讯，与其他牛马一起成长。
+                        </p>
+                    </div>
+                </div>
+                
+                <div class="mt-16 bg-gradient-to-r from-primary/20 to-accent/20 rounded-2xl p-8 md:p-12 border border-primary/20">
+                    <div class="grid md:grid-cols-2 gap-8 items-center">
+                        <div>
+                            <h3 class="font-display font-bold text-2xl mb-4" data-lang-key="buy-okx-title">在欧易钱包购买 $NIUMA</h3>
+                            <p class="text-light/70 mb-6" data-lang-key="buy-contract-address">
+                                CA:0x87669801a1fad6dad9db70d27ac752f452989667
+                            </p>
+                            
+                            <a href="https://okx.com" target="_blank" class="inline-flex items-center gap-2 bg-primary hover:bg-primary/90 text-white px-8 py-3 rounded-full font-medium transition-all transform hover:scale-105">
+                                <i class="fa fa-external-link"></i> <span data-lang-key="buy-go-to-buy">前往购买</span>
+                            </a>
+                        </div>
+                        
+                        <div class="flex justify-center">
+                            <div class="bg-dark/80 backdrop-blur-sm rounded-xl p-6 border border-light/10 w-full max-w-xs">
+                                <div class="flex items-center justify-between mb-6">
+                                    <h4 class="font-bold" data-lang-key="buy-trading-pair">NIUMA/USDT</h4>
+                                    <span class="text-accent font-medium">-7%</span>
+                                </div>
+                                
+                                <div class="mb-6">
+                                    <p class="text-3xl font-bold mb-1">$0.000261</p>
+                                    <p class="text-light/60 text-sm" data-lang-key="buy-market-cap">流通市值: $25.5 万</p>
+                                </div>
+                                
+                                <div class="grid grid-cols-2 gap-3">
+                                    <button class="bg-accent hover:bg-accent/90 text-white py-3 rounded-lg font-medium transition-colors" data-lang-key="buy-button">
+                                        买入
+                                    </button>
+                                    <button class="bg-red-500 hover:bg-red-500/90 text-white py-3 rounded-lg font-medium transition-colors" data-lang-key="sell-button">
+                                        卖出
+                                    </button>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- 加入社区 -->
+        <section class="py-20 relative bg-gradient-to-b from-dark to-secondary">
+            <div class="absolute inset-0 overflow-hidden">
+                <div class="absolute bottom-0 left-1/2 transform -translate-x-1/2 w-96 h-96 bg-primary/10 rounded-full filter blur-3xl"></div>
+            </div>
+            
+            <div class="container mx-auto px-4 sm:px-6 lg:px-8 relative z-10">
+                <div class="max-w-4xl mx-auto bg-secondary/80 backdrop-blur-md rounded-3xl p-8 md:p-12 border border-light/10 text-center">
+                    <div class="w-20 h-20 rounded-full bg-primary/20 flex items-center justify-center mx-auto mb-6">
+                        <i class="fa fa-bullhorn text-3xl text-primary"></i>
+                    </div>
+                    
+                    <h2 class="font-display font-bold text-[clamp(1.8rem,3vw,2.5rem)] mb-6" data-lang-key="join-community-title">
+                        加入<span class="text-primary">NIUMA</span>大家庭
+                    </h2>
+                    
+                    <p class="text-light/70 text-lg mb-8 max-w-2xl mx-auto" data-lang-key="join-community-desc">
+                        无论你是经验丰富的加密货币爱好者，还是刚刚入门的新手，我们都欢迎你加入NIUMA社区，一起传播牛马精神，共创价值。
+                    </p>
+                    
+                    <div class="flex flex-wrap justify-center gap-4">
+                        <a href="https://t.me/niuma" target="_blank" class="flex items-center gap-2 bg-[#2CA5E0]/20 hover:bg-[#2CA5E0]/30 text-[#2CA5E0] px-6 py-3 rounded-full font-medium transition-all">
+                            <i class="fa fa-telegram"></i> Telegram
+                        </a>
+                      <!--  <a href="https://discord.gg/niuma" target="_blank" class="flex items-center gap-2 bg-[#5865F2]/20 hover:bg-[#5865F2]/30 text-[#5865F2] px-6 py-3 rounded-full font-medium transition-all">
+                            <i class="fa fa-discord"></i> Discord
+                        </a> -->
+                        <a href="https://twitter.com/niuma" target="_blank" class="flex items-center gap-2 bg-[#1DA1F2]/20 hover:bg-[#1DA1F2]/30 text-[#1DA1F2] px-6 py-3 rounded-full font-medium transition-all">
+                            <i class="fa fa-twitter"></i> Twitter
+                        </a>
+                    </div>
+                </div>
+            </div>
+        </section>
+    </main>
+
+    <!-- 页脚 -->
+    <footer class="bg-dark py-12 border-t border-light/10">
+        <div class="container mx-auto px-4 sm:px-6 lg:px-8">
+            <div class="grid md:grid-cols-4 gap-8 mb-12">
+                <div>
+                    <a href="#" class="flex items-center space-x-2 mb-6">
+                        <div class="w-10 h-10 rounded-full bg-primary flex items-center justify-center">
+                            <span class="font-display font-bold text-xl">N</span>
+                        </div>
+                        <span class="font-display font-bold text-2xl tracking-tight">NIUMA</span>
+                    </a>
+                    <p class="text-light/60 mb-6" data-lang-key="footer-description">
+                        致敬每一个勤劳肯干的"牛马"，我们用汗水铸就价值。
+                    </p>
+                    <div class="flex space-x-4">
+                        <a href="#" class="text-light/40 hover:text-primary transition-colors">
+                            <i class="fa fa-telegram text-xl"></i>
+                        </a>
+                        <a href="#" class="text-light/40 hover:text-primary transition-colors">
+                            <i class="fa fa-twitter text-xl"></i>
+                        </a>
+                        <a href="#" class="text-light/40 hover:text-primary transition-colors">
+                            <i class="fa fa-discord text-xl"></i>
+                        </a>
+                        <a href="#" class="text-light/40 hover:text-primary transition-colors">
+                            <i class="fa fa-github text-xl"></i>
+                        </a>
+                    </div>
+                </div>
+                
+                <div>
+                    <h4 class="font-bold text-lg mb-6" data-lang-key="footer-quick-links">快速链接</h4>
+                    <ul class="space-y-3">
+                        <li><a href="#about" class="text-light/60 hover:text-primary transition-colors" data-lang-key="footer-about">关于我们</a></li>
+                        <li><a href="#token" class="text-light/60 hover:text-primary transition-colors" data-lang-key="footer-token">代币信息</a></li>
+                        <li><a href="#community" class="text-light/60 hover:text-primary transition-colors" data-lang-key="footer-community">社区</a></li>
+                        <li><a href="#roadmap" class="text-light/60 hover:text-primary transition-colors" data-lang-key="footer-roadmap">路线图</a></li>
+                        <li><a href="#buy" class="text-light/60 hover:text-primary transition-colors" data-lang-key="footer-buy">如何购买</a></li>
+                    </ul>
+                </div>
+                
+                <!-- <div>
+                    <h4 class="font-bold text-lg mb-6" data-lang-key="footer-resources">资源</h4>
+                    <ul class="space-y-3">
+                        <li><a href="#" class="text-light/60 hover:text-primary transition-colors" data-lang-key="footer-whitepaper">白皮书</a></li>
+                        <li><a href="#" class="text-light/60 hover:text-primary transition-colors" data-lang-key="footer-audit">合约审计</a></li>
+                        <li><a href="#" class="text-light/60 hover:text-primary transition-colors" data-lang-key="footer-faq">常见问题</a></li>
+                        <li><a href="#" class="text-light/60 hover:text-primary transition-colors" data-lang-key="footer-tutorial">教程</a></li>
+                        <li><a href="#" class="text-light/60 hover:text-primary transition-colors" data-lang-key="footer-xlayer-guide">XLayer指南</a></li>
+                    </ul>
+                </div>
+                
+                <div>
+                    <h4 class="font-bold text-lg mb-6" data-lang-key="footer-legal">法律</h4>
+                    <ul class="space-y-3">
+                        <li><a href="#" class="text-light/60 hover:text-primary transition-colors" data-lang-key="footer-privacy">隐私政策</a></li>
+                        <li><a href="#" class="text-light/60 hover:text-primary transition-colors" data-lang-key="footer-terms">服务条款</a></li>
+                        <li><a href="#" class="text-light/60 hover:text-primary transition-colors" data-lang-key="footer-disclaimer">免责声明</a></li>
+                    </ul>
+                </div> -->
+            </div>
+            
+            <div class="pt-8 border-t border-light/10 flex flex-col md:flex-row justify-between items-center">
+                <p class="text-light/40 text-sm mb-4 md:mb-0" data-lang-key="footer-copyright">
+                    &copy; 2023 NIUMA. 保留所有权利。
+                </p>
+                <p class="text-light/40 text-sm" data-lang-key="footer-disclaimer-text">
+                    NIUMA是一个社区驱动的meme币，投资有风险，参与需谨慎。
+                </p>
+            </div>
+        </div>
+    </footer>
+
+    <!-- JavaScript -->
+    <script src="js/main.js"></script>
+</body>
+</html>
