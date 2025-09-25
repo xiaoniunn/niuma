@@ -1,0 +1,509 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>NIUMA Meme图片展示 | 牛马精神图片库</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://cdn.jsdelivr.net/npm/font-awesome@4.7.0/css/font-awesome.min.css" rel="stylesheet">
+    <!-- 配置Tailwind自定义主题   -->
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    colors: {
+                        primary: '#FF7A00', // 活力橙1 - 代表能量与行动力
+                        secondary: '#1E293B', // 深蓝灰 - 代表稳重与专业
+                        accent: '#10B981', // 绿色 - 代表增长与希望
+                        dark: '#0F172A',
+                        light: '#F8FAFC'
+                    },
+                    fontFamily: {
+                        sans: ['Inter', 'system-ui', 'sans-serif'],
+                        display: ['Montserrat', 'sans-serif']
+                    },
+                }
+            }
+        }
+    </script>
+    <style type="text/tailwindcss">
+        @layer utilities {
+            .content-auto {
+                content-visibility: auto;
+            }
+            .text-shadow {
+                text-shadow: 0 2px 4px rgba(0,0,0,0.1);
+            }
+            .text-shadow-lg {
+                text-shadow: 0 4px 8px rgba(0,0,0,0.12), 0 2px 4px rgba(0,0,0,0.08);
+            }
+            .animate-float {
+                animation: float 6s ease-in-out infinite;
+            }
+            .animate-pulse-slow {
+                animation: pulse 4s cubic-bezier(0.4, 0, 0.6, 1) infinite;
+            }
+            .masonry-grid {
+                column-count: 1;
+                column-gap: 1rem;
+                column-fill: balance;
+            }
+            .masonry-item {
+                break-inside: avoid;
+                margin-bottom: 1rem;
+                display: inline-block;
+                width: 100%;
+            }
+            .image-hover {
+                transition: all 0.3s ease;
+            }
+            .image-hover:hover {
+                transform: scale(1.05);
+                box-shadow: 0 20px 40px rgba(0,0,0,0.3);
+            }
+            .modal-backdrop {
+                backdrop-filter: blur(10px);
+                background: rgba(15, 23, 42, 0.8);
+            }
+        }
+
+        @keyframes float {
+            0% { transform: translateY(0px); }
+            50% { transform: translateY(-20px); }
+            100% { transform: translateY(0px); }
+        }
+
+        @media (min-width: 640px) {
+            .masonry-grid {
+                column-count: 2;
+            }
+        }
+
+        @media (min-width: 768px) {
+            .masonry-grid {
+                column-count: 3;
+            }
+        }
+
+        @media (min-width: 1024px) {
+            .masonry-grid {
+                column-count: 4;
+            }
+        }
+
+        @media (min-width: 1280px) {
+            .masonry-grid {
+                column-count: 5;
+            }
+        }
+    </style>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Montserrat:wght@500;600;700;800&display=swap" rel="stylesheet">
+    <script src="js/language.js"></script>
+</head>
+<body class="bg-gradient-to-br from-dark to-secondary text-light antialiased">
+    <!-- 导航栏 -->
+    <header id="navbar" class="fixed w-full z-50 transition-all duration-300">
+        <div class="container mx-auto px-4 sm:px-6 lg:px-8">
+            <div class="flex justify-between items-center py-4">
+                <a href="index.html" class="flex items-center space-x-2">
+                    <img src="image/niuma.png" alt="NIUMA Logo" class="w-10 h-10">
+                    <span class="font-display font-bold text-2xl tracking-tight">NIUMA</span>
+                </a>
+                
+                <!-- 桌面导航 -->
+                <nav class="hidden md:flex items-center space-x-8">
+                    <a href="index.html" class="text-light/80 hover:text-primary transition-colors" data-lang-key="nav-home">首页</a>
+                    <a href="gallery.html" class="text-primary font-medium" data-lang-key="nav-gallery">图片展示</a>
+                    <a href="index.html#about" class="text-light/80 hover:text-primary transition-colors" data-lang-key="nav-about">关于我们</a>
+                    <a href="index.html#token" class="text-light/80 hover:text-primary transition-colors" data-lang-key="nav-token">代币信息</a>
+                    <a href="index.html#community" class="text-light/80 hover:text-primary transition-colors" data-lang-key="nav-community">社区</a>
+                    <a href="https://web3.okx.com/ul/Igl5Ksd" target="_blank" class="bg-primary hover:bg-primary/90 text-white px-6 py-2 rounded-full font-medium transition-all transform hover:scale-105" data-lang-key="nav-buy">
+                        购买NIUMA
+                    </a>
+                    <div class="relative group">
+                        <button id="language-toggle" class="text-light/80 hover:text-primary transition-colors flex items-center">
+                            <i class="fa fa-globe mr-1"></i> <span data-lang-key="current-lang">中文</span> <i class="fa fa-caret-down ml-1"></i>
+                        </button>
+                        <div class="absolute right-0 mt-2 w-36 bg-dark/95 rounded-md shadow-lg overflow-hidden z-50 transform scale-0 group-hover:scale-100 transition-transform origin-top">
+                            <a href="#" id="lang-zh" class="block px-4 py-2 text-sm text-light hover:bg-primary/20 hover:text-primary">中文</a>
+                            <a href="#" id="lang-en" class="block px-4 py-2 text-sm text-light hover:bg-primary/20 hover:text-primary">English</a>
+                        </div>
+                    </div>
+                </nav>
+                
+                <!-- 移动端菜单按钮 -->
+                <button id="menu-toggle" class="md:hidden text-light focus:outline-none">
+                    <i class="fa fa-bars text-2xl"></i>
+                </button>
+            </div>
+        </div>
+        
+        <!-- 移动端导航菜单 -->
+        <div id="mobile-menu" class="md:hidden hidden bg-dark/95 backdrop-blur-md">
+            <div class="container mx-auto px-4 py-4 space-y-4">
+                <a href="index.html" class="block text-light/80 hover:text-primary transition-colors py-2" data-lang-key="nav-home">首页</a>
+                <a href="gallery.html" class="block text-primary font-medium py-2" data-lang-key="nav-gallery">图片展示</a>
+                <a href="index.html#about" class="block text-light/80 hover:text-primary transition-colors py-2" data-lang-key="nav-about">关于我们</a>
+                <a href="index.html#token" class="block text-light/80 hover:text-primary transition-colors py-2" data-lang-key="nav-token">代币信息</a>
+                <a href="index.html#community" class="block text-light/80 hover:text-primary transition-colors py-2" data-lang-key="nav-community">社区</a>
+                <a href="https://web3.okx.com/ul/Igl5Ksd" target="_blank" class="block bg-primary hover:bg-primary/90 text-white px-6 py-3 rounded-full font-medium text-center transition-all" data-lang-key="nav-buy">
+                    购买NIUMA
+                </a>
+                <div class="relative">
+                    <button id="mobile-language-toggle" class="block text-light/80 hover:text-primary transition-colors py-2 flex items-center">
+                        <i class="fa fa-globe mr-1"></i> <span data-lang-key="current-lang">中文</span> <i class="fa fa-caret-down ml-1"></i>
+                    </button>
+                    <div id="mobile-lang-dropdown" class="hidden absolute left-0 mt-2 w-36 bg-dark/95 rounded-md shadow-lg overflow-hidden z-50">
+                        <a href="#" id="mobile-lang-zh" class="block px-4 py-2 text-sm text-light hover:bg-primary/20 hover:text-primary">中文</a>
+                        <a href="#" id="mobile-lang-en" class="block px-4 py-2 text-sm text-light hover:bg-primary/20 hover:text-primary">English</a>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </header>
+
+    <main>
+        <!-- 页面标题区域 -->
+        <section class="pt-32 pb-16 relative overflow-hidden">
+            <!-- 背景装饰 -->
+            <div class="absolute inset-0 overflow-hidden">
+                <div class="absolute -top-40 -right-40 w-96 h-96 bg-primary/20 rounded-full filter blur-3xl"></div>
+                <div class="absolute top-1/3 -left-20 w-72 h-72 bg-accent/20 rounded-full filter blur-3xl"></div>
+            </div>
+            
+            <div class="container mx-auto px-4 sm:px-6 lg:px-8 relative z-10">
+                <div class="text-center max-w-4xl mx-auto">
+                    <span class="inline-block px-4 py-1 bg-primary/20 text-primary rounded-full text-sm font-medium mb-4" data-lang-key="gallery-badge">
+                        NIUMA图片库
+                    </span>
+                    <h1 class="font-display font-bold text-[clamp(2.5rem,5vw,4rem)] leading-tight text-shadow-lg mb-6" data-lang-key="gallery-heading">
+                        <span class="text-primary">牛马精神</span> Meme图片展示
+                    </h1>
+                    <p class="text-light/70 text-lg leading-relaxed mb-8" data-lang-key="gallery-description">
+                        探索NIUMA社区创作的精彩Meme图片，感受牛马精神的创意与幽默
+                    </p>
+                    
+                    <!-- 筛选和搜索 -->
+                    <div class="flex flex-wrap justify-center gap-4 mb-8">
+                        <button class="filter-btn active bg-primary text-white px-6 py-2 rounded-full font-medium transition-all" data-filter="all">
+                            全部
+                        </button>
+                        <button class="filter-btn bg-secondary/50 text-light hover:bg-primary hover:text-white px-6 py-2 rounded-full font-medium transition-all" data-filter="meme">
+                            Meme图
+                        </button>
+                        <button class="filter-btn bg-secondary/50 text-light hover:bg-primary hover:text-white px-6 py-2 rounded-full font-medium transition-all" data-filter="community">
+                            社区创作
+                        </button>
+                        <button class="filter-btn bg-secondary/50 text-light hover:bg-primary hover:text-white px-6 py-2 rounded-full font-medium transition-all" data-filter="official">
+                            官方素材
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- 图片展示区域 -->
+        <section class="pb-20 relative">
+            <div class="container mx-auto px-4 sm:px-6 lg:px-8">
+                <!-- 加载指示器 -->
+                <div id="loading" class="text-center py-8">
+                    <div class="inline-block animate-spin rounded-full h-8 w-8 border-b-2 border-primary"></div>
+                    <p class="text-light/60 mt-2">加载中...</p>
+                </div>
+                
+                <!-- 图片网格 -->
+                <div id="gallery-grid" class="masonry-grid opacity-0 transition-opacity duration-500">
+                    <!-- 图片将通过JavaScript动态加载 -->
+                </div>
+                
+                <!-- 加载更多按钮 -->
+                <div class="text-center mt-12">
+                    <button id="load-more" class="bg-primary hover:bg-primary/90 text-white px-8 py-3 rounded-full font-medium transition-all transform hover:scale-105 hidden">
+                        <i class="fa fa-plus mr-2"></i>加载更多
+                    </button>
+                </div>
+            </div>
+        </section>
+    </main>
+
+    <!-- 图片模态框 -->
+    <div id="image-modal" class="fixed inset-0 z-[100] hidden modal-backdrop">
+        <div class="flex items-center justify-center min-h-screen p-4">
+            <div class="relative max-w-4xl max-h-[90vh] w-full">
+                <button id="close-modal" class="absolute -top-12 right-0 text-white hover:text-primary text-2xl z-10">
+                    <i class="fa fa-times"></i>
+                </button>
+                <img id="modal-image" src="" alt="" class="w-full h-auto max-h-[90vh] object-contain rounded-lg shadow-2xl">
+                <div class="absolute bottom-0 left-0 right-0 bg-gradient-to-t from-dark/80 to-transparent p-6 rounded-b-lg">
+                    <h3 id="modal-title" class="text-white font-bold text-xl mb-2"></h3>
+                    <p id="modal-description" class="text-light/80"></p>
+                </div>
+                <!-- 导航按钮 -->
+                <button id="prev-image" class="absolute left-4 top-1/2 transform -translate-y-1/2 bg-dark/50 hover:bg-dark/70 text-white p-3 rounded-full transition-all">
+                    <i class="fa fa-chevron-left"></i>
+                </button>
+                <button id="next-image" class="absolute right-4 top-1/2 transform -translate-y-1/2 bg-dark/50 hover:bg-dark/70 text-white p-3 rounded-full transition-all">
+                    <i class="fa fa-chevron-right"></i>
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <!-- 页脚 -->
+    <footer class="bg-dark/80 backdrop-blur-sm border-t border-light/10 py-12">
+        <div class="container mx-auto px-4 sm:px-6 lg:px-8">
+            <div class="text-center">
+                <div class="flex items-center justify-center space-x-2 mb-6">
+                    <img src="image/niuma.png" alt="NIUMA Logo" class="w-8 h-8">
+                    <span class="font-display font-bold text-xl">NIUMA</span>
+                </div>
+                <p class="text-light/60 mb-6" data-lang-key="footer-description">
+                    致敬每一个牛马，用汗水铸就价值，在XLayer链上共创未来
+                </p>
+                <div class="flex justify-center space-x-6 mb-6">
+                    <a href="https://t.me/NIUMANEW/1" target="_blank" class="text-light/60 hover:text-primary transition-colors">
+                        <i class="fa fa-telegram text-xl"></i>
+                    </a>
+                    <a href="https://x.com/NIUMA_Xlayer" target="_blank" class="text-light/60 hover:text-primary transition-colors">
+                        <i class="fa fa-twitter text-xl"></i>
+                    </a>
+                </div>
+                <p class="text-light/40 text-sm" data-lang-key="footer-copyright">
+                    © 2025 NIUMA. All rights reserved.
+                </p>
+            </div>
+        </div>
+    </footer>
+
+    <script src="js/main.js"></script>
+    <script>
+        // 图片数据 - 实际项目中应该从API获取
+        const imageData = [
+            {
+                id: 1,
+                src: 'image/niuma.png',
+                title: 'NIUMA Logo',
+                description: 'NIUMA官方Logo，代表牛马精神',
+                category: 'official',
+                width: 400,
+                height: 400
+            },
+            {
+                id: 2,
+                src: 'image/tuanjie.png',
+                title: '团结就是力量',
+                description: '社区团结的象征',
+                category: 'community',
+                width: 600,
+                height: 400
+            },
+            {
+                id: 3,
+                src: 'image/tuanjie1.png',
+                title: '牛马精神',
+                description: '展现牛马精神的创意图片',
+                category: 'meme',
+                width: 500,
+                height: 600
+            },
+            {
+                id: 4,
+                src: 'image/tuanjie3.png',
+                title: '社区建设者',
+                description: '致敬每一位社区建设者',
+                category: 'community',
+                width: 400,
+                height: 500
+            },
+            // 添加更多示例图片
+            {
+                id: 5,
+                src: 'https://picsum.photos/400/600?random=1',
+                title: 'Meme创作 #1',
+                description: '社区成员创作的有趣Meme',
+                category: 'meme',
+                width: 400,
+                height: 600
+            },
+            {
+                id: 6,
+                src: 'https://picsum.photos/500/400?random=2',
+                title: 'Meme创作 #2',
+                description: '展现牛马精神的幽默图片',
+                category: 'meme',
+                width: 500,
+                height: 400
+            },
+            {
+                id: 7,
+                src: 'https://picsum.photos/450/550?random=3',
+                title: '官方宣传图',
+                description: 'NIUMA官方宣传素材',
+                category: 'official',
+                width: 450,
+                height: 550
+            },
+            {
+                id: 8,
+                src: 'https://picsum.photos/400/700?random=4',
+                title: '社区活动',
+                description: '社区活动精彩瞬间',
+                category: 'community',
+                width: 400,
+                height: 700
+            }
+        ];
+
+        let currentFilter = 'all';
+        let currentImageIndex = 0;
+        let filteredImages = [];
+
+        // 初始化页面
+        document.addEventListener('DOMContentLoaded', function() {
+            loadImages();
+            setupEventListeners();
+        });
+
+        // 加载图片
+        function loadImages() {
+            const loading = document.getElementById('loading');
+            const gallery = document.getElementById('gallery-grid');
+            
+            // 根据当前筛选条件过滤图片
+            filteredImages = currentFilter === 'all' 
+                ? imageData 
+                : imageData.filter(img => img.category === currentFilter);
+            
+            // 清空现有内容
+            gallery.innerHTML = '';
+            
+            // 创建图片元素
+            filteredImages.forEach((image, index) => {
+                const imageElement = createImageElement(image, index);
+                gallery.appendChild(imageElement);
+            });
+            
+            // 隐藏加载指示器，显示图片网格
+            loading.style.display = 'none';
+            gallery.style.opacity = '1';
+        }
+
+        // 创建图片元素
+        function createImageElement(image, index) {
+            const div = document.createElement('div');
+            div.className = 'masonry-item';
+            
+            div.innerHTML = `
+                <div class="bg-secondary/50 backdrop-blur-sm rounded-xl overflow-hidden border border-light/10 hover:border-primary/30 transition-all image-hover cursor-pointer" onclick="openModal(${index})">
+                    <img src="${image.src}" alt="${image.title}" class="w-full h-auto object-cover" loading="lazy">
+                    <div class="p-4">
+                        <h3 class="font-bold text-lg mb-2 text-light">${image.title}</h3>
+                        <p class="text-light/70 text-sm">${image.description}</p>
+                        <div class="mt-3 flex items-center justify-between">
+                            <span class="px-2 py-1 bg-primary/20 text-primary rounded text-xs font-medium">
+                                ${getCategoryName(image.category)}
+                            </span>
+                            <button class="text-light/60 hover:text-primary transition-colors">
+                                <i class="fa fa-expand"></i>
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            `;
+            
+            return div;
+        }
+
+        // 获取分类名称
+        function getCategoryName(category) {
+            const names = {
+                'all': '全部',
+                'meme': 'Meme图',
+                'community': '社区创作',
+                'official': '官方素材'
+            };
+            return names[category] || category;
+        }
+
+        // 设置事件监听器
+        function setupEventListeners() {
+            // 筛选按钮
+            document.querySelectorAll('.filter-btn').forEach(btn => {
+                btn.addEventListener('click', function() {
+                    // 更新按钮状态
+                    document.querySelectorAll('.filter-btn').forEach(b => {
+                        b.classList.remove('active', 'bg-primary', 'text-white');
+                        b.classList.add('bg-secondary/50', 'text-light');
+                    });
+                    this.classList.add('active', 'bg-primary', 'text-white');
+                    this.classList.remove('bg-secondary/50', 'text-light');
+                    
+                    // 更新筛选条件并重新加载图片
+                    currentFilter = this.dataset.filter;
+                    document.getElementById('gallery-grid').style.opacity = '0';
+                    document.getElementById('loading').style.display = 'block';
+                    
+                    setTimeout(() => {
+                        loadImages();
+                    }, 300);
+                });
+            });
+
+            // 模态框事件
+            document.getElementById('close-modal').addEventListener('click', closeModal);
+            document.getElementById('image-modal').addEventListener('click', function(e) {
+                if (e.target === this) closeModal();
+            });
+            document.getElementById('prev-image').addEventListener('click', showPrevImage);
+            document.getElementById('next-image').addEventListener('click', showNextImage);
+            
+            // 键盘事件
+            document.addEventListener('keydown', function(e) {
+                if (document.getElementById('image-modal').classList.contains('hidden')) return;
+                
+                if (e.key === 'Escape') closeModal();
+                if (e.key === 'ArrowLeft') showPrevImage();
+                if (e.key === 'ArrowRight') showNextImage();
+            });
+        }
+
+        // 打开模态框
+        function openModal(index) {
+            currentImageIndex = index;
+            const image = filteredImages[index];
+            
+            document.getElementById('modal-image').src = image.src;
+            document.getElementById('modal-title').textContent = image.title;
+            document.getElementById('modal-description').textContent = image.description;
+            document.getElementById('image-modal').classList.remove('hidden');
+            document.body.style.overflow = 'hidden';
+        }
+
+        // 关闭模态框
+        function closeModal() {
+            document.getElementById('image-modal').classList.add('hidden');
+            document.body.style.overflow = 'auto';
+        }
+
+        // 显示上一张图片
+        function showPrevImage() {
+            currentImageIndex = currentImageIndex > 0 ? currentImageIndex - 1 : filteredImages.length - 1;
+            const image = filteredImages[currentImageIndex];
+            
+            document.getElementById('modal-image').src = image.src;
+            document.getElementById('modal-title').textContent = image.title;
+            document.getElementById('modal-description').textContent = image.description;
+        }
+
+        // 显示下一张图片
+        function showNextImage() {
+            currentImageIndex = currentImageIndex < filteredImages.length - 1 ? currentImageIndex + 1 : 0;
+            const image = filteredImages[currentImageIndex];
+            
+            document.getElementById('modal-image').src = image.src;
+            document.getElementById('modal-title').textContent = image.title;
+            document.getElementById('modal-description').textContent = image.description;
+        }
+    </script>
+</body>
+</html>

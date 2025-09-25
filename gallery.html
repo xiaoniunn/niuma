@@ -1,0 +1,372 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>NIUMA Meme图片展示 | 牛马精神图片库</title>
+    
+    <!-- 公共组件加载器 -->
+    <script src="js/components.js"></script>
+    
+    <!-- 页面特定样式 -->
+    <style type="text/tailwindcss">
+        @layer utilities {
+            .content-auto {
+                content-visibility: auto;
+            }
+            .text-shadow {
+                text-shadow: 0 2px 4px rgba(0,0,0,0.1);
+            }
+            .text-shadow-lg {
+                text-shadow: 0 4px 8px rgba(0,0,0,0.12), 0 2px 4px rgba(0,0,0,0.08);
+            }
+            .animate-float {
+                animation: float 6s ease-in-out infinite;
+            }
+            .animate-pulse-slow {
+                animation: pulse 4s cubic-bezier(0.4, 0, 0.6, 1) infinite;
+            }
+            .masonry-grid {
+                column-count: 1;
+                column-gap: 1rem;
+                column-fill: balance;
+            }
+            .masonry-item {
+                break-inside: avoid;
+                margin-bottom: 1rem;
+                display: inline-block;
+                width: 100%;
+            }
+            .image-hover {
+                transition: all 0.3s ease;
+            }
+            .image-hover:hover {
+                transform: scale(1.05);
+                box-shadow: 0 20px 40px rgba(0,0,0,0.3);
+            }
+            .modal-backdrop {
+                backdrop-filter: blur(10px);
+                background: rgba(15, 23, 42, 0.8);
+            }
+        }
+
+        @keyframes float {
+            0% { transform: translateY(0px); }
+            50% { transform: translateY(-20px); }
+            100% { transform: translateY(0px); }
+        }
+
+        @media (min-width: 640px) {
+            .masonry-grid {
+                column-count: 2;
+            }
+        }
+
+        @media (min-width: 768px) {
+            .masonry-grid {
+                column-count: 3;
+            }
+        }
+
+        @media (min-width: 1024px) {
+            .masonry-grid {
+                column-count: 4;
+            }
+        }
+
+        @media (min-width: 1280px) {
+            .masonry-grid {
+                column-count: 5;
+            }
+        }
+    </style>
+</head>
+<body class="bg-gradient-to-br from-dark to-secondary text-light antialiased">
+    <!-- 导航栏将通过组件加载器自动加载 -->
+    <div id="header-container"></div>
+
+    <!-- 页面标题区域 -->
+    <section class="pt-24 pb-12 bg-gradient-to-r from-dark via-secondary to-dark">
+        <div class="container mx-auto px-4 sm:px-6 lg:px-8">
+            <div class="text-center">
+                <h1 class="text-4xl md:text-6xl font-display font-bold mb-4 text-shadow-lg animate-float">
+                    <span class="gradient-text">NIUMA</span> Meme 图片库
+                </h1>
+                <p class="text-xl md:text-2xl text-light/80 mb-8 animate-pulse-slow" data-lang-key="gallery-subtitle">
+                    展示牛马精神，分享快乐时光
+                </p>
+                
+                <!-- 搜索和筛选 -->
+                <div class="flex flex-col sm:flex-row gap-4 justify-center items-center max-w-2xl mx-auto">
+                    <div class="relative flex-1 w-full sm:w-auto">
+                        <input 
+                            type="text" 
+                            id="searchInput" 
+                            placeholder="搜索图片..." 
+                            class="w-full px-4 py-3 pl-12 bg-light/10 backdrop-blur-sm border border-light/20 rounded-full text-light placeholder-light/60 focus:outline-none focus:ring-2 focus:ring-primary focus:border-transparent transition-all"
+                        >
+                        <i class="fa fa-search absolute left-4 top-1/2 transform -translate-y-1/2 text-light/60"></i>
+                    </div>
+                    <button 
+                        id="filterBtn" 
+                        class="px-6 py-3 bg-primary hover:bg-primary/90 text-white rounded-full font-medium transition-all transform hover:scale-105 flex items-center space-x-2"
+                    >
+                        <i class="fa fa-filter"></i>
+                        <span data-lang-key="gallery-filter">筛选</span>
+                    </button>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- 图片展示区域 -->
+    <section class="py-12">
+        <div class="container mx-auto px-4 sm:px-6 lg:px-8">
+            <!-- 加载指示器 -->
+            <div id="loadingIndicator" class="text-center py-12">
+                <div class="inline-block animate-spin rounded-full h-12 w-12 border-b-2 border-primary"></div>
+                <p class="mt-4 text-light/60" data-lang-key="gallery-loading">正在加载图片...</p>
+            </div>
+            
+            <!-- 图片网格 -->
+            <div id="imageGrid" class="masonry-grid hidden">
+                <!-- 图片将通过JavaScript动态加载 -->
+            </div>
+            
+            <!-- 加载更多按钮 -->
+            <div class="text-center mt-12">
+                <button 
+                    id="loadMoreBtn" 
+                    class="px-8 py-3 bg-primary hover:bg-primary/90 text-white rounded-full font-medium transition-all transform hover:scale-105 hidden"
+                    data-lang-key="gallery-load-more"
+                >
+                    加载更多
+                </button>
+            </div>
+        </div>
+    </section>
+
+    <!-- 图片模态框 -->
+    <div id="imageModal" class="fixed inset-0 z-50 hidden">
+        <div class="modal-backdrop absolute inset-0" onclick="closeModal()"></div>
+        <div class="relative z-10 flex items-center justify-center min-h-screen p-4">
+            <div class="relative max-w-4xl max-h-full">
+                <button 
+                    onclick="closeModal()" 
+                    class="absolute -top-4 -right-4 w-10 h-10 bg-primary hover:bg-primary/90 text-white rounded-full flex items-center justify-center transition-all z-20"
+                >
+                    <i class="fa fa-times"></i>
+                </button>
+                <img 
+                    id="modalImage" 
+                    src="" 
+                    alt="" 
+                    class="max-w-full max-h-[90vh] object-contain rounded-lg shadow-2xl"
+                >
+                <div class="absolute bottom-0 left-0 right-0 bg-gradient-to-t from-dark/80 to-transparent p-6 rounded-b-lg">
+                    <h3 id="modalTitle" class="text-xl font-bold text-light mb-2"></h3>
+                    <p id="modalDescription" class="text-light/80"></p>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- 页脚将通过组件加载器自动加载 -->
+    <div id="footer-container"></div>
+
+    <!-- 页面特定JavaScript -->
+    <script>
+        // 示例图片数据
+        const imageData = [
+            {
+                src: 'image/1.jpg',
+                title: '勤劳的牛马',
+                description: '每天努力工作的牛马精神',
+                category: 'work'
+            },
+            {
+                src: 'image/2.jpg',
+                title: '快乐的牛马',
+                description: '工作之余的快乐时光',
+                category: 'fun'
+            },
+            {
+                src: 'image/3.jpg',
+                title: '团结的牛马',
+                description: '团队合作的力量',
+                category: 'team'
+            },
+            {
+                src: 'image/4.jpg',
+                title: '坚持的牛马',
+                description: '永不放弃的精神',
+                category: 'motivation'
+            },
+            {
+                src: 'image/5.jpg',
+                title: '成功的牛马',
+                description: '努力后的收获',
+                category: 'success'
+            },
+            {
+                src: 'image/6.jpg',
+                title: '创新的牛马',
+                description: '不断创新的思维',
+                category: 'innovation'
+            }
+        ];
+
+        let currentImages = [];
+        let displayedImages = 0;
+        const imagesPerLoad = 12;
+
+        // 初始化页面
+        document.addEventListener('DOMContentLoaded', function() {
+            currentImages = [...imageData];
+            loadImages();
+            setupEventListeners();
+        });
+
+        // 设置事件监听器
+        function setupEventListeners() {
+            // 搜索功能
+            document.getElementById('searchInput').addEventListener('input', function(e) {
+                const searchTerm = e.target.value.toLowerCase();
+                currentImages = imageData.filter(img => 
+                    img.title.toLowerCase().includes(searchTerm) || 
+                    img.description.toLowerCase().includes(searchTerm)
+                );
+                displayedImages = 0;
+                document.getElementById('imageGrid').innerHTML = '';
+                loadImages();
+            });
+
+            // 加载更多按钮
+            document.getElementById('loadMoreBtn').addEventListener('click', loadImages);
+
+            // 筛选按钮（示例功能）
+            document.getElementById('filterBtn').addEventListener('click', function() {
+                // 这里可以添加筛选功能
+                alert('筛选功能开发中...');
+            });
+        }
+
+        // 加载图片
+        function loadImages() {
+            const imageGrid = document.getElementById('imageGrid');
+            const loadingIndicator = document.getElementById('loadingIndicator');
+            const loadMoreBtn = document.getElementById('loadMoreBtn');
+
+            // 显示加载指示器
+            if (displayedImages === 0) {
+                loadingIndicator.classList.remove('hidden');
+                imageGrid.classList.add('hidden');
+            }
+
+            // 模拟加载延迟
+            setTimeout(() => {
+                const imagesToLoad = currentImages.slice(displayedImages, displayedImages + imagesPerLoad);
+                
+                imagesToLoad.forEach((imageInfo, index) => {
+                    const imageElement = createImageElement(imageInfo, displayedImages + index);
+                    imageGrid.appendChild(imageElement);
+                });
+
+                displayedImages += imagesToLoad.length;
+
+                // 隐藏加载指示器，显示图片网格
+                loadingIndicator.classList.add('hidden');
+                imageGrid.classList.remove('hidden');
+
+                // 显示或隐藏加载更多按钮
+                if (displayedImages < currentImages.length) {
+                    loadMoreBtn.classList.remove('hidden');
+                } else {
+                    loadMoreBtn.classList.add('hidden');
+                }
+            }, 500);
+        }
+
+        // 创建图片元素
+        function createImageElement(imageInfo, index) {
+            const div = document.createElement('div');
+            div.className = 'masonry-item';
+            
+            // 随机高度以创建瀑布流效果
+            const heights = ['h-48', 'h-56', 'h-64', 'h-72', 'h-80'];
+            const randomHeight = heights[Math.floor(Math.random() * heights.length)];
+            
+            div.innerHTML = `
+                <div class="bg-light/10 backdrop-blur-sm rounded-lg overflow-hidden shadow-lg hover:shadow-2xl transition-all duration-300 image-hover cursor-pointer" onclick="openModal('${imageInfo.src}', '${imageInfo.title}', '${imageInfo.description}')">
+                    <div class="relative ${randomHeight}">
+                        <img 
+                            src="${imageInfo.src}" 
+                            alt="${imageInfo.title}" 
+                            class="w-full h-full object-cover"
+                            loading="lazy"
+                            onerror="this.src='image/placeholder.jpg'"
+                        >
+                        <div class="absolute inset-0 bg-gradient-to-t from-dark/60 via-transparent to-transparent opacity-0 hover:opacity-100 transition-opacity duration-300">
+                            <div class="absolute bottom-4 left-4 right-4">
+                                <h3 class="text-light font-bold text-lg mb-1">${imageInfo.title}</h3>
+                                <p class="text-light/80 text-sm">${imageInfo.description}</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            `;
+            
+            return div;
+        }
+
+        // 打开模态框
+        function openModal(src, title, description) {
+            const modal = document.getElementById('imageModal');
+            const modalImage = document.getElementById('modalImage');
+            const modalTitle = document.getElementById('modalTitle');
+            const modalDescription = document.getElementById('modalDescription');
+
+            modalImage.src = src;
+            modalImage.alt = title;
+            modalTitle.textContent = title;
+            modalDescription.textContent = description;
+
+            modal.classList.remove('hidden');
+            document.body.style.overflow = 'hidden';
+        }
+
+        // 关闭模态框
+        function closeModal() {
+            const modal = document.getElementById('imageModal');
+            modal.classList.add('hidden');
+            document.body.style.overflow = 'auto';
+        }
+
+        // ESC键关闭模态框
+        document.addEventListener('keydown', function(e) {
+            if (e.key === 'Escape') {
+                closeModal();
+            }
+        });
+
+        // 懒加载优化
+        if ('IntersectionObserver' in window) {
+            const imageObserver = new IntersectionObserver((entries, observer) => {
+                entries.forEach(entry => {
+                    if (entry.isIntersecting) {
+                        const img = entry.target;
+                        img.src = img.dataset.src;
+                        img.classList.remove('lazy');
+                        imageObserver.unobserve(img);
+                    }
+                });
+            });
+
+            // 观察所有懒加载图片
+            document.querySelectorAll('img[data-src]').forEach(img => {
+                imageObserver.observe(img);
+            });
+        }
+    </script>
+</body>
+</html>

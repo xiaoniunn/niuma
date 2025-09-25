@@ -1,0 +1,64 @@
+<!-- header.html -->
+<header id="navbar" class="fixed w-full z-50 transition-all duration-300">
+    <div class="container mx-auto px-4 sm:px-6 lg:px-8">
+        <div class="flex justify-between items-center py-4">
+            <a href="#" class="flex items-center space-x-2">
+                <img src="image/niuma.png" alt="NIUMA Logo" class="w-10 h-10">
+                <span class="font-display font-bold text-2xl tracking-tight">NIUMA</span>
+            </a>
+            
+            <!-- 桌面导航 -->
+            <nav class="hidden md:flex items-center space-x-8">
+                 <a href="gallery.html" class="text-light/80 hover:text-primary transition-colors" data-cn="首页" data-en="Home">首页</a>
+               
+                 <!-- <a href="gallery.html" class="text-light/80 hover:text-primary transition-colors" data-cn="NIUMA 图库" data-en="NIUMA Gallery">NIUMA 图库</a>
+                -->
+               
+                <!-- <a href="#about" class="text-light/80 hover:text-primary transition-colors" data-lang-key="nav-about">关于我们</a>
+                <a href="#token" class="text-light/80 hover:text-primary transition-colors" data-lang-key="nav-token">代币信息</a>
+                <a href="#community" class="text-light/80 hover:text-primary transition-colors" data-lang-key="nav-community">社区</a>
+                <a href="#roadmap" class="text-light/80 hover:text-primary transition-colors" data-lang-key="nav-roadmap">路线图</a> -->
+                <a href="https://web3.okx.com/ul/Igl5Ksd" target="_blank" class="bg-primary hover:bg-primary/90 text-white px-6 py-2 rounded-full font-medium transition-all transform hover:scale-105" data-lang-key="nav-buy">
+                    购买NIUMA
+                </a>
+                <div class="relative group">
+                    <button id="language-toggle" class="text-light/80 hover:text-primary transition-colors flex items-center">
+                        <i class="fa fa-globe mr-1"></i> <span data-lang-key="current-lang">中文</span> <i class="fa fa-caret-down ml-1"></i>
+                    </button>
+                    <div class="absolute right-0 mt-2 w-36 bg-dark/95 rounded-md shadow-lg overflow-hidden z-50 transform scale-0 group-hover:scale-100 transition-transform origin-top">
+                        <a  id="lang-zh" class="block px-4 py-2 text-sm text-light hover:bg-primary/20 hover:text-primary">中文</a>
+                        <a  id="lang-en" class="block px-4 py-2 text-sm text-light hover:bg-primary/20 hover:text-primary">English</a>
+                    </div>
+                </div>
+            </nav>
+            
+            <!-- 移动端菜单按钮 -->
+            <button id="menu-toggle" class="md:hidden text-light focus:outline-none">
+                <i class="fa fa-bars text-2xl"></i>
+            </button>
+        </div>
+    </div>
+    
+    <!-- 移动端导航菜单 -->
+    <div id="mobile-menu" class="md:hidden hidden bg-dark/95 backdrop-blur-md">
+        <div class="container mx-auto px-4 py-4 space-y-4">
+            <a href="gallery.html" class="block text-light/80 hover:text-primary transition-colors py-2" data-lang-key="nav-gallery">图片展示</a>
+            <a href="#about" class="block text-light/80 hover:text-primary transition-colors py-2" data-lang-key="nav-about">关于我们</a>
+            <a href="#token" class="block text-light/80 hover:text-primary transition-colors py-2" data-lang-key="nav-token">代币信息</a>
+            <a href="#community" class="block text-light/80 hover:text-primary transition-colors py-2" data-lang-key="nav-community">社区</a>
+            <a href="#roadmap" class="block text-light/80 hover:text-primary transition-colors py-2" data-lang-key="nav-roadmap">路线图</a>
+            <a href="https://web3.okx.com/ul/Igl5Ksd" target="_blank" class="block bg-primary hover:bg-primary/90 text-white px-6 py-3 rounded-full font-medium text-center transition-all" data-lang-key="nav-buy">
+                购买NIUMA
+            </a>
+            <div class="relative">
+                <button id="mobile-language-toggle" class="block text-light/80 hover:text-primary transition-colors py-2 flex items-center">
+                    <i class="fa fa-globe mr-1"></i> <span data-lang-key="current-lang">中文</span> <i class="fa fa-caret-down ml-1"></i>
+                </button>
+                <div id="mobile-lang-dropdown" class="hidden absolute left-0 mt-2 w-36 bg-dark/95 rounded-md shadow-lg overflow-hidden z-50">
+                    <a href="#" id="mobile-lang-zh" class="block px-4 py-2 text-sm text-light hover:bg-primary/20 hover:text-primary">中文</a>
+                    <a href="#" id="mobile-lang-en" class="block px-4 py-2 text-sm text-light hover:bg-primary/20 hover:text-primary">English</a>
+                </div>
+            </div>
+        </div>
+    </div>
+</header>
