@@ -469,7 +469,34 @@ const translations = {
         'treasury-long-term-b': 'NIUMA 长期 B', 
         'treasury-project-support': 'NIUMA 项目支持',
         'treasury-daily-operations': 'NIUMA 日常',
-        'copy-address': '复制地址'
+        'copy-address': '复制地址',
+        
+        // 打卡页面翻译
+        'checkin-title': '打卡数据',
+        'checkin-subtitle': '社区打卡统计与排行',
+        'today-checkin': '今日打卡',
+        'total-members': '累计总人数',
+        'consecutive-days': '连续打卡天数',
+        'growth-rate': '增长率',
+        'active-rate': '活跃度',
+        'daily-ranking': '今日前10名',
+        'monthly-ranking': '月度排行榜',
+        'checkin-trend': '打卡趋势',
+        'checkin-time': '打卡时间',
+        'consecutive': '连续',
+        'days': '天',
+        'times': '次',
+        'no-data': '暂无数据',
+        'checkin-now': '立即打卡',
+        'view-records': '查看记录',
+        'refresh-data': '刷新数据',
+        'loading': '加载中...',
+        'error-occurred': '发生错误',
+        'retry': '重试',
+        'daily-checkin-count': '每日打卡人数',
+        'checkin-motivation': '打卡激励',
+        'checkin-motivation-text': '每一次打卡都是对自己的承诺，坚持下去！',
+        'rank': '排名'
     },
     en: {
         'nav-home': 'Home',
@@ -713,7 +740,34 @@ const translations = {
         'treasury-long-term-b': 'NIUMA Long-term B',
         'treasury-project-support': 'NIUMA Project Support',
         'treasury-daily-operations': 'NIUMA Daily Operations',
-        'copy-address': 'Copy Address'
+        'copy-address': 'Copy Address',
+        
+        // 打卡页面翻译
+        'checkin-title': 'Check-in Data',
+        'checkin-subtitle': 'Community Check-in Statistics and Rankings',
+        'today-checkin': 'Today\'s Check-ins',
+        'total-members': 'Total Members',
+        'consecutive-days': 'Consecutive Days',
+        'growth-rate': 'Growth Rate',
+        'active-rate': 'Active Rate',
+        'daily-ranking': 'Today\'s Top 10',
+        'monthly-ranking': 'Monthly Ranking',
+        'checkin-trend': 'Check-in Trend',
+        'checkin-time': 'Check-in Time',
+        'consecutive': 'Consecutive',
+        'days': 'days',
+        'times': 'times',
+        'no-data': 'No data available',
+        'checkin-now': 'Check-in Now',
+        'view-records': 'View Records',
+        'refresh-data': 'Refresh Data',
+        'loading': 'Loading...',
+        'error-occurred': 'An error occurred',
+        'retry': 'Retry',
+        'daily-checkin-count': 'Daily Check-in Count',
+        'checkin-motivation': 'Check-in Motivation',
+        'checkin-motivation-text': 'Every check-in is a commitment to yourself, keep going!',
+        'rank': 'Rank'
     }
 };
 

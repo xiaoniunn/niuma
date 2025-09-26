@@ -1,0 +1,651 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title data-cn="NIUMA - 打卡数据" data-en="NIUMA - Check-in Data">NIUMA 打卡数据 | 社区活跃度统计</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://cdn.jsdelivr.net/npm/font-awesome@4.7.0/css/font-awesome.min.css" rel="stylesheet">
+    <script src="js/chart.min.js"></script>
+    <!-- 配置Tailwind自定义主题   -->
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    colors: {
+                        primary: '#FF7A00', // 活力橙1 - 代表能量与行动力
+                        secondary: '#1E293B', // 深蓝灰 - 代表稳重与专业
+                        accent: '#10B981', // 绿色 - 代表增长与希望
+                        dark: '#0F172A',
+                        light: '#F8FAFC'
+                    },
+                    fontFamily: {
+                        sans: ['Inter', 'system-ui', 'sans-serif'],
+                        display: ['Montserrat', 'sans-serif']
+                    },
+                }
+            }
+        }
+    </script>
+    <style type="text/tailwindcss">
+        @layer utilities {
+            .content-auto {
+                content-visibility: auto;
+            }
+            .text-shadow {
+                text-shadow: 0 2px 4px rgba(0,0,0,0.1);
+            }
+            .text-shadow-lg {
+                text-shadow: 0 4px 8px rgba(0,0,0,0.12), 0 2px 4px rgba(0,0,0,0.08);
+            }
+            .animate-float {
+                animation: float 6s ease-in-out infinite;
+            }
+            .animate-pulse-slow {
+                animation: pulse 4s cubic-bezier(0.4, 0, 0.6, 1) infinite;
+            }
+            .gradient-border {
+                background: linear-gradient(45deg, #FF7A00, #10B981);
+                padding: 2px;
+                border-radius: 12px;
+            }
+            .gradient-border-content {
+                background: #1E293B;
+                border-radius: 10px;
+                padding: 1.5rem;
+            }
+        }
+
+        @keyframes float {
+            0% { transform: translateY(0px); }
+            50% { transform: translateY(-20px); }
+            100% { transform: translateY(0px); }
+        }
+        
+        .rank-badge {
+            background: linear-gradient(135deg, #FFD700, #FFA500);
+            color: #000;
+        }
+        
+        .rank-badge.silver {
+            background: linear-gradient(135deg, #C0C0C0, #A8A8A8);
+            color: #000;
+        }
+        
+        .rank-badge.bronze {
+            background: linear-gradient(135deg, #CD7F32, #B87333);
+            color: #fff;
+        }
+    </style>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Montserrat:wght@500;600;700;800&display=swap" rel="stylesheet">
+    <script src="js/language.js"></script>
+</head>
+<body class="bg-gradient-to-br from-dark to-secondary text-light antialiased">
+    <!-- 导航栏 -->
+    <div id="header-container"></div>
+
+    <main>
+        <!-- 页面标题区域 -->
+        <section class="pt-32 pb-16 relative overflow-hidden">
+            <!-- 背景装饰 -->
+            <div class="absolute inset-0 overflow-hidden">
+                <div class="absolute -top-40 -right-40 w-96 h-96 bg-primary/20 rounded-full filter blur-3xl"></div>
+                <div class="absolute top-1/3 -left-20 w-72 h-72 bg-accent/20 rounded-full filter blur-3xl"></div>
+            </div>
+            
+            <div class="container mx-auto px-4 sm:px-6 lg:px-8 relative z-10">
+                <div class="text-center max-w-4xl mx-auto">
+                    <span class="inline-block px-4 py-2 bg-primary/20 text-primary rounded-full text-sm font-medium mb-4">
+                        <i class="fa fa-calendar-check-o mr-2"></i>社区活跃度
+                    </span>
+                    <h1 class="font-display font-bold text-[clamp(2.5rem,5vw,4rem)] leading-tight text-shadow-lg mb-6" data-cn="NIUMA 打卡数据" data-en="NIUMA Check-in Data">
+                        NIUMA <span class="text-primary">打卡数据</span>
+                    </h1>
+                    <p class="text-light/70 text-lg leading-relaxed" data-cn="记录每一个牛马的坚持，见证社区的成长与活力" data-en="Recording every NIUMA's persistence, witnessing community growth and vitality">
+                        记录每一个牛马的坚持，见证社区的成长与活力
+                    </p>
+                </div>
+            </div>
+        </section>
+
+        <!-- 今日打卡概览 -->
+        <section class="py-16 relative">
+            <div class="container mx-auto px-4 sm:px-6 lg:px-8">
+                <div class="grid md:grid-cols-3 gap-8 mb-16">
+                    <!-- 今日打卡人数 -->
+                    <div class="gradient-border">
+                        <div class="gradient-border-content text-center">
+                            <div class="text-4xl font-bold text-primary mb-2" id="todayCheckins">156</div>
+                            <div class="text-light/70 text-sm mb-2" data-cn="今日打卡人数" data-en="Today's Check-ins">今日打卡人数</div>
+                            <div class="text-accent text-xs">
+                                <i class="fa fa-arrow-up mr-1"></i>较昨日 +12%
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <!-- 打卡总人数 -->
+                    <div class="gradient-border">
+                        <div class="gradient-border-content text-center">
+                            <div class="text-4xl font-bold text-accent mb-2" id="totalUsers">2,847</div>
+                            <div class="text-light/70 text-sm mb-2" data-cn="累计打卡总人数" data-en="Total Members">累计打卡总人数</div>
+                            <div class="text-primary text-xs">
+                                <i class="fa fa-users mr-1"></i>活跃社区成员
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <!-- 连续打卡天数 -->
+                    <div class="gradient-border">
+                        <div class="gradient-border-content text-center">
+                            <div class="text-4xl font-bold text-yellow-400 mb-2" id="consecutiveDays">89</div>
+                            <div class="text-light/70 text-sm mb-2" data-cn="社区连续打卡天数" data-en="Consecutive Days">社区连续打卡天数</div>
+                            <div class="text-yellow-400 text-xs">
+                                <i class="fa fa-fire mr-1"></i>坚持不懈
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- 今日打卡前10名 -->
+        <section class="py-16 bg-secondary/30">
+            <div class="container mx-auto px-4 sm:px-6 lg:px-8">
+                <div class="text-center mb-12">
+                    <h2 class="font-display font-bold text-3xl mb-4" data-cn="今日打卡排行榜" data-en="Today's Check-in Ranking">
+                        今日打卡 <span class="text-primary">排行榜</span>
+                    </h2>
+                    <p class="text-light/70" data-cn="早起的牛马有奖励，看看今天谁最勤奋" data-en="Early birds get rewards, see who's most diligent today">早起的牛马有奖励，看看今天谁最勤奋</p>
+                </div>
+                
+                <div class="max-w-4xl mx-auto">
+                    <div class="bg-secondary/50 backdrop-blur-sm rounded-2xl p-8 border border-light/10">
+                        <div class="space-y-4" id="dailyRanking">
+                            <!-- 动态生成排行榜内容 -->
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- 月度排行榜 -->
+        <section class="py-16">
+            <div class="container mx-auto px-4 sm:px-6 lg:px-8">
+                <div class="text-center mb-12">
+                    <h2 class="font-display font-bold text-3xl mb-4" data-cn="本月打卡排行榜" data-en="Monthly Check-in Ranking">
+                        本月打卡 <span class="text-accent">排行榜</span>
+                    </h2>
+                    <p class="text-light/70" data-cn="坚持就是胜利，看看本月的打卡之王" data-en="Persistence is victory, see this month's check-in champions">坚持就是胜利，看看本月的打卡之王</p>
+                </div>
+                
+                <div class="grid lg:grid-cols-2 gap-8">
+                    <!-- 月度前10名 -->
+                    <div class="bg-secondary/50 backdrop-blur-sm rounded-2xl p-8 border border-light/10">
+                        <h3 class="font-semibold text-xl mb-6 text-center" data-cn="月度排行榜" data-en="Monthly Ranking">
+                            <i class="fa fa-trophy text-yellow-400 mr-2"></i>月度排行榜
+                        </h3>
+                        <div class="space-y-3" id="monthlyRanking">
+                            <!-- 动态生成月度排行榜内容 -->
+                        </div>
+                    </div>
+                    
+                    <!-- 打卡统计图表 -->
+                    <div class="bg-secondary/50 backdrop-blur-sm rounded-2xl p-8 border border-light/10">
+                        <h3 class="font-semibold text-xl mb-6 text-center" data-cn="本月打卡趋势" data-en="Monthly Check-in Trend">
+                            <i class="fa fa-bar-chart text-primary mr-2"></i>本月打卡趋势
+                        </h3>
+                        <div class="h-64">
+                            <canvas id="checkinChart"></canvas>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- 打卡激励区域 -->
+        <section class="py-16 bg-gradient-to-r from-primary/20 to-accent/20">
+            <div class="container mx-auto px-4 sm:px-6 lg:px-8">
+                <div class="text-center max-w-3xl mx-auto">
+                    <h2 class="font-display font-bold text-3xl mb-6" data-cn="加入打卡行列，成为 NIUMA 精神的践行者" data-en="Join the Check-in Community, Become a NIUMA Spirit Practitioner">
+                        加入打卡行列，成为 <span class="text-primary">NIUMA</span> 精神的践行者
+                    </h2>
+                    <p class="text-light/70 text-lg mb-8" data-cn="每一次打卡都是对自己的承诺，每一天坚持都是对梦想的追求" data-en="Every check-in is a commitment to yourself, every day of persistence is a pursuit of dreams">
+                        每一次打卡都是对自己的承诺，每一天坚持都是对梦想的追求
+                    </p>
+                    <div class="flex flex-wrap justify-center gap-4">
+                        <a href="https://t.me/NIUMANEW" target="_blank">
+                            <button class="bg-primary hover:bg-primary/90 text-white px-8 py-3 rounded-full font-medium transition-all transform hover:scale-105 flex items-center gap-2" data-cn="立即打卡" data-en="Check-in Now">
+                                <i class="fa fa-check-circle"></i> 立即打卡
+                            </button>
+                        </a>
+                       
+                        <!-- <button class="bg-transparent border border-light/30 hover:border-accent text-light hover:text-accent px-8 py-3 rounded-full font-medium transition-all">
+                            <i class="fa fa-calendar"></i> 查看我的记录
+                        </button> -->
+                    </div>
+                </div>
+            </div>
+        </section>
+    </main>
+
+    <!-- 页脚 -->
+    <div id="footer-container"></div>
+
+    <script src="js/main.js"></script>
+    <script src="js/components.js"></script>
+    <script src="js/language.js"></script>
+    <script src="js/checkin-api.js"></script>
+    
+    <!--  打卡数据脚本  -->
+    <script>
+        // 全局状态管理
+        const appState = {
+            loading: {  
+                stats: false,
+                dailyRanking: false,
+                monthlyRanking: false,
+                chart: false
+            },
+            data: {
+                stats: null,
+                dailyRanking: null,
+                monthlyRanking: null,
+                chartData: null
+            },
+            error: null
+        };
+
+        // 显示加载状态
+        function showLoading(section) {
+            appState.loading[section] = true;
+            const loadingHTML = `
+                <div class="flex items-center justify-center py-8">
+                    <div class="animate-spin rounded-full h-8 w-8 border-b-2 border-primary"></div>
+                    <span class="ml-3 text-light/70">加载中...</span>
+                </div>
+            `;
+            
+            switch(section) {
+                case 'dailyRanking':
+                    document.getElementById('dailyRanking').innerHTML = loadingHTML;
+                    break;
+                case 'monthlyRanking':
+                    document.getElementById('monthlyRanking').innerHTML = loadingHTML;
+                    break;
+            }
+        }
+
+        // 显示错误状态
+        function showError(section, message) {
+            const errorHTML = `
+                <div class="flex flex-col items-center justify-center py-8 text-center">
+                    <i class="fa fa-exclamation-triangle text-red-400 text-2xl mb-3"></i>
+                    <p class="text-light/70 mb-4">${message}</p>
+                    <button onclick="retryLoad('${section}')" class="bg-primary hover:bg-primary/90 text-white px-4 py-2 rounded-lg text-sm transition-all">
+                        <i class="fa fa-refresh mr-2"></i>重试
+                    </button>
+                </div>
+            `;
+            
+            switch(section) {
+                case 'dailyRanking':
+                    document.getElementById('dailyRanking').innerHTML = errorHTML;
+                    break;
+                case 'monthlyRanking':
+                    document.getElementById('monthlyRanking').innerHTML = errorHTML;
+                    break;
+            }
+        }
+
+        // 重试加载
+        async function retryLoad(section) {
+            switch(section) {
+                case 'dailyRanking':
+                    await loadDailyRanking();
+                    break;
+                case 'monthlyRanking':
+                    await loadMonthlyRanking();
+                    break;
+                case 'stats':
+                    await loadTodayStats();
+                    break;
+                case 'chart':
+                    await loadChartData();
+                    break;
+            }
+        }
+
+        // 加载今日统计数据
+        async function loadTodayStats() {
+            try {
+                appState.loading.stats = true;
+                const result = await checkinAPI.getTodayStatsWithMock();
+                
+                if (result.success) {
+                    appState.data.stats = result.data;
+                    updateStatsDisplay(result.data);
+                } else {
+                    throw new Error(result.error || '获取统计数据失败');
+                }
+            } catch (error) {
+                console.error('加载统计数据失败:', error);
+                appState.error = error.message;
+                // 显示默认数据或错误提示
+                updateStatsDisplay({
+                    todayCheckins: '--',
+                    totalUsers: '--',
+                    consecutiveDays: '--',
+                    growthRate: 0
+                });
+            } finally {
+                appState.loading.stats = false;
+            }
+        }
+
+        // 更新统计数据显示
+        function updateStatsDisplay(stats) {
+            document.getElementById('todayCheckins').textContent = stats.todayCheckins;
+            document.getElementById('totalUsers').textContent = stats.totalUsers.toLocaleString();
+            document.getElementById('consecutiveDays').textContent = stats.consecutiveDays;
+            
+            // 更新增长率显示
+            const growthElement = document.querySelector('.text-accent');
+            if (growthElement && stats.growthRate !== undefined) {
+                growthElement.innerHTML = `<i class="fa fa-arrow-up mr-1"></i>较昨日 +${stats.growthRate}%`;
+            }
+        }
+
+        // 加载今日排行榜
+        async function loadDailyRanking() {
+            try {
+                showLoading('dailyRanking');
+                const result = await checkinAPI.getTodayRankingWithMock(10);
+                
+                if (result.success) {
+                    appState.data.dailyRanking = result.data;
+                    renderDailyRanking(result.data);
+                } else {
+                    throw new Error(result.error || '获取今日排行榜失败');
+                }
+            } catch (error) {
+                console.error('加载今日排行榜失败:', error);
+                showError('dailyRanking', '加载今日排行榜失败，请稍后重试');
+            } finally {
+                appState.loading.dailyRanking = false;
+            }
+        }
+
+        // 加载月度排行榜
+        async function loadMonthlyRanking() {
+            try {
+                showLoading('monthlyRanking');
+                const result = await checkinAPI.getMonthlyRankingWithMock(10);
+                
+                if (result.success) {
+                    appState.data.monthlyRanking = result.data;
+                    renderMonthlyRanking(result.data);
+                } else {
+                    throw new Error(result.error || '获取月度排行榜失败');
+                }
+            } catch (error) {
+                console.error('加载月度排行榜失败:', error);
+                showError('monthlyRanking', '加载月度排行榜失败，请稍后重试');
+            } finally {
+                appState.loading.monthlyRanking = false;
+            }
+        }
+
+        // 加载图表数据
+        async function loadChartData() {
+            try {
+                appState.loading.chart = true;
+                const result = await checkinAPI.getMonthlyTrendWithMock();
+                
+                if (result.success) {
+                    appState.data.chartData = result.data;
+                    initChart(result.data);
+                } else {
+                    throw new Error(result.error || '获取图表数据失败');
+                }
+            } catch (error) {
+                console.error('加载图表数据失败:', error);
+                // 使用默认数据初始化图表
+                const defaultData = {
+                    labels: Array.from({length: 30}, (_, i) => i + 1),
+                    data: Array.from({length: 30}, () => Math.floor(Math.random() * 50) + 100)
+                };
+                initChart(defaultData);
+            } finally {
+                appState.loading.chart = false;
+            }
+        }
+
+        // 渲染今日排行榜
+        function renderDailyRanking(data) {
+            const container = document.getElementById('dailyRanking');
+            if (!data || data.length === 0) {
+                container.innerHTML = '<div class="text-center py-8 text-light/70" data-cn="暂无数据" data-en="No data available">暂无数据</div>';
+                return;
+            }
+            
+            container.innerHTML = data.map(user => {
+                let badgeClass = '';
+                let icon = '';
+                if (user.rank === 1) {
+                    badgeClass = 'rank-badge';
+                    icon = '<i class="fa fa-crown"></i>';
+                } else if (user.rank === 2) {
+                    badgeClass = 'rank-badge silver';
+                    icon = '<i class="fa fa-medal"></i>';
+                } else if (user.rank === 3) {
+                    badgeClass = 'rank-badge bronze';
+                    icon = '<i class="fa fa-award"></i>';
+                } else {
+                    badgeClass = 'bg-secondary text-light';
+                    icon = user.rank;
+                }
+                
+                return `
+                    <div class="flex items-center justify-between p-4 bg-dark/30 rounded-xl hover:bg-dark/50 transition-all">
+                        <div class="flex items-center space-x-4">
+                            <div class="w-10 h-10 ${badgeClass} rounded-full flex items-center justify-center font-bold text-sm">
+                                ${icon}
+                            </div>
+                            <img src="${user.avatar}" alt="${user.name}" class="w-12 h-12 rounded-full border-2 border-primary/30" ">
+                            <div>
+                                <div class="font-semibold text-light">${user.name}</div>
+                                <div class="text-sm text-light/60"><span data-cn="连续" data-en="Consecutive">连续</span> ${user.streak} <span data-cn="天" data-en="days">天</span></div>
+                                <a href="https://x.com/${user.tuite}" target="_blank" class=" text-primary/60 hover:text-primary transition-all">
+                                    <i class="fa fa-twitter"></i>
+                                </a>
+                            </div>
+                        </div>
+                        <div class="text-right">
+                            <div class="text-primary font-semibold">${user.time}</div>
+                            <div class="text-xs text-light/60" data-cn="打卡时间" data-en="Check-in Time">打卡时间</div>
+                        </div>
+                    </div>
+                `;
+            }).join('');
+        }
+
+        // 渲染月度排行榜
+        function renderMonthlyRanking(data) {
+            const container = document.getElementById('monthlyRanking');
+            if (!data || data.length === 0) {
+                container.innerHTML = '<div class="text-center py-8 text-light/70" data-cn="暂无数据" data-en="No data available">暂无数据</div>';
+                return;
+            }
+            
+            container.innerHTML = data.map(user => {
+                let badgeClass = '';
+                let icon = '';
+                if (user.rank === 1) {
+                    badgeClass = 'rank-badge';
+                    icon = '<i class="fa fa-crown"></i>';
+                } else if (user.rank === 2) {
+                    badgeClass = 'rank-badge silver';
+                    icon = '<i class="fa fa-medal"></i>';
+                } else if (user.rank === 3) {
+                    badgeClass = 'rank-badge bronze';
+                    icon = '<i class="fa fa-award"></i>';
+                } else {
+                    badgeClass = 'bg-secondary text-light';
+                    icon = user.rank;
+                }
+                
+                return `
+                    <div class="flex items-center justify-between p-3 bg-dark/30 rounded-lg hover:bg-dark/50 transition-all">
+                        <div class="flex items-center space-x-3">
+                            <div class="w-8 h-8 ${badgeClass} rounded-full flex items-center justify-center font-bold text-xs">
+                                ${icon}
+                            </div>
+                            <img src="${user.avatar}" alt="${user.name}" class="w-10 h-10 rounded-full border-2 border-accent/30">
+                            <div class="font-medium text-light">${user.name}</div>
+                             <a href="https://x.com/${user.tuite}" target="_blank" class=" text-primary/60 hover:text-primary transition-all">
+                                    <i class="fa fa-twitter"></i>
+                                </a>
+                        </div>
+                        <div class="text-accent font-semibold">${user.count} <span data-cn="次" data-en="times">次</span></div>
+                    </div>
+                `;
+            }).join('');
+        }
+
+        // 初始化图表
+        function initChart(chartData) {
+            const ctx = document.getElementById('checkinChart').getContext('2d');
+            
+            // 销毁现有图表（如果存在）
+            // 先检查是否存在已有的图表实例，如果有则销毁
+            if (window.checkinChart && typeof window.checkinChart.destroy === 'function') {
+                window.checkinChart.destroy();
+            }
+            
+            window.checkinChart = new Chart(ctx, {
+                type: 'line',
+                data: {
+                    labels: chartData.labels,
+                    datasets: [{
+                        label: currentLanguage === 'zh' ? '每日打卡人数' : 'Daily Check-in Count',
+                        data: chartData.data,
+                        borderColor: '#FF7A00',
+                        backgroundColor: 'rgba(255, 122, 0, 0.1)',
+                        borderWidth: 2,
+                        fill: true,
+                        tension: 0.4,
+                        pointBackgroundColor: '#FF7A00',
+                        pointBorderColor: '#FFFFFF',
+                        pointBorderWidth: 2,
+                        pointRadius: 4,
+                        pointHoverRadius: 6
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    plugins: {
+                        legend: {
+                            labels: {
+                                color: '#F8FAFC',
+                                font: {
+                                    size: 12
+                                }
+                            }
+                        },
+                        tooltip: {
+                            backgroundColor: 'rgba(30, 41, 59, 0.9)',
+                            titleColor: '#F8FAFC',
+                            bodyColor: '#F8FAFC',
+                            borderColor: '#FF7A00',
+                            borderWidth: 1
+                        }
+                    },
+                    scales: {
+                        x: {
+                            ticks: {
+                                color: '#F8FAFC',
+                                font: {
+                                    size: 11
+                                }
+                            },
+                            grid: {
+                                color: 'rgba(248, 250, 252, 0.1)'
+                            }
+                        },
+                        y: {
+                            ticks: {
+                                color: '#F8FAFC',
+                                font: {
+                                    size: 11
+                                }
+                            },
+                            grid: {
+                                color: 'rgba(248, 250, 252, 0.1)'
+                            }
+                        }
+                    },
+                    interaction: {
+                        intersect: false,
+                        mode: 'index'
+                    }
+                }
+            });
+        }
+
+        // 刷新所有数据
+        async function refreshAllData() {
+            console.log('🔄 开始刷新所有数据...');
+            
+            // 清除缓存
+            checkinAPI.clearAllCache();
+            
+            // 并行加载所有数据
+            await Promise.all([
+                loadTodayStats(),
+                loadDailyRanking(),
+                loadMonthlyRanking(),
+                loadChartData()
+            ]);
+            
+            console.log('✅ 数据刷新完成');
+        }
+
+        // 添加刷新按钮功能
+        function addRefreshButton() {
+            const refreshButton = document.createElement('button');
+            refreshButton.innerHTML = '<i class="fa fa-refresh mr-2"></i><span data-cn="刷新数据" data-en="Refresh Data">刷新数据</span>';
+            refreshButton.className = 'fixed bottom-6 right-6 bg-primary hover:bg-primary/90 text-white px-4 py-2 rounded-full shadow-lg transition-all transform hover:scale-105 z-50';
+            refreshButton.onclick = refreshAllData;
+            document.body.appendChild(refreshButton);
+        }
+
+        // 页面加载完成后初始化
+        document.addEventListener('DOMContentLoaded', async function() {
+            console.log('🚀 初始化打卡数据页面...');
+            
+            // 添加刷新按钮
+            addRefreshButton();
+            
+            // 加载所有数据
+            await refreshAllData();
+            
+            console.log('✅ 页面初始化完成');
+        });
+
+        // 定时刷新数据（每5分钟）
+        setInterval(async () => {
+            console.log('⏰ 定时刷新数据...');
+            await refreshAllData();
+        }, 5 * 60 * 1000);
+
+        // 页面可见性变化时刷新数据
+        document.addEventListener('visibilitychange', async function() {
+            if (!document.hidden) {
+                console.log('👁️ 页面重新可见，刷新数据...');
+                await refreshAllData();
+            }
+        });
+    </script>
+</body>
+</html>
