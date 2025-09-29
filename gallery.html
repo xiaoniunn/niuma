@@ -4,10 +4,28 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>NIUMA Meme图片展示 | 牛马精神图片库</title>
-    
-    <!-- 公共组件加载器 -->
-    <script src="js/components.js"></script>
-    
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://cdn.jsdelivr.net/npm/font-awesome@4.7.0/css/font-awesome.min.css" rel="stylesheet">
+    <!-- 配置Tailwind自定义主题   -->
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    colors: {
+                        primary: '#FF7A00', // 活力橙1 - 代表能量与行动力
+                        secondary: '#1E293B', // 深蓝灰 - 代表稳重与专业
+                        accent: '#10B981', // 绿色 - 代表增长与希望
+                        dark: '#0F172A',
+                        light: '#F8FAFC'
+                    },
+                    fontFamily: {
+                        sans: ['Inter', 'system-ui', 'sans-serif'],
+                        display: ['Montserrat', 'sans-serif']
+                    },
+                }
+            }
+        }
+    </script>
     <!-- 页面特定样式 -->
     <style type="text/tailwindcss">
         @layer utilities {
@@ -48,6 +66,36 @@
                 backdrop-filter: blur(10px);
                 background: rgba(15, 23, 42, 0.8);
             }
+            .gradient-text {
+                background: linear-gradient(135deg, #FF7A00, #10B981);
+                -webkit-background-clip: text;
+                -webkit-text-fill-color: transparent;
+                background-clip: text;
+            }
+            /* 底部加载提示样式 */
+            .bottom-loading {
+                height: 60px;
+                display: flex;
+                align-items: center;
+                justify-content: center;
+                margin: 1rem 0;
+                opacity: 0;
+                transition: opacity 0.3s ease;
+            }
+            .bottom-loading.active {
+                opacity: 1;
+            }
+            /* 无更多数据提示 */
+            .no-more-data {
+                height: 60px;
+                display: flex;
+                align-items: center;
+                justify-content: center;
+                color: #F8FAFC80;
+                font-size: 0.9rem;
+                margin: 1rem 0;
+                display: none;
+            }
         }
 
         @keyframes float {
@@ -56,24 +104,22 @@
             100% { transform: translateY(0px); }
         }
 
+        /* 响应式瀑布流列数调整 */
         @media (min-width: 640px) {
             .masonry-grid {
                 column-count: 2;
             }
         }
-
         @media (min-width: 768px) {
             .masonry-grid {
                 column-count: 3;
             }
         }
-
         @media (min-width: 1024px) {
             .masonry-grid {
                 column-count: 4;
             }
         }
-
         @media (min-width: 1280px) {
             .masonry-grid {
                 column-count: 5;
@@ -86,62 +132,54 @@
     <div id="header-container"></div>
 
     <!-- 页面标题区域 -->
-    <section class="pt-24 pb-12 bg-gradient-to-r from-dark via-secondary to-dark">
-        <div class="container mx-auto px-4 sm:px-6 lg:px-8">
-            <div class="text-center">
-                <h1 class="text-4xl md:text-6xl font-display font-bold mb-4 text-shadow-lg animate-float">
-                    <span class="gradient-text">NIUMA</span> Meme 图片库
+    <section class="pt-24 pb-12 relative overflow-hidden">
+        <!-- 背景装饰 -->
+        <div class="absolute inset-0 overflow-hidden">
+            <div class="absolute -top-40 -right-40 w-96 h-96 bg-primary/20 rounded-full filter blur-3xl"></div>
+            <div class="absolute top-1/3 -left-20 w-72 h-72 bg-accent/20 rounded-full filter blur-3xl"></div>
+        </div>
+        
+        <div class="container mx-auto px-4 sm:px-6 lg:px-8 relative z-10">
+            <div class="text-center max-w-4xl mx-auto">
+                <span class="inline-block px-4 py-2 bg-primary/20 text-primary rounded-full text-sm font-medium mb-4">
+                    <i class="fa fa-image mr-2"></i><span data-cn="社区图片库" data-en="Community Gallery">社区图片库</span>
+                </span>
+                <h1 class="font-display font-bold text-[clamp(2rem,5vw,3.5rem)] leading-tight text-shadow-lg mb-4">
+                    <span class="gradient-text">NIUMA</span> <span data-cn="Meme 图片库" data-en="Meme Gallery">Meme 图片库</span>
                 </h1>
-                <p class="text-xl md:text-2xl text-light/80 mb-8 animate-pulse-slow" data-lang-key="gallery-subtitle">
-                    展示牛马精神，分享快乐时光
+                <p class="text-light/70 text-base leading-relaxed max-w-2xl mx-auto" data-cn="收集和分享最有趣的牛马精神Meme图片，记录我们社区的欢乐时光" data-en="Collect and share the most interesting NIUMA spirit meme images, recording the joyful moments of our community">
+                    收集和分享最有趣的牛马精神Meme图片，记录我们社区的欢乐时光
                 </p>
-                
-                <!-- 搜索和筛选 -->
-                <div class="flex flex-col sm:flex-row gap-4 justify-center items-center max-w-2xl mx-auto">
-                    <div class="relative flex-1 w-full sm:w-auto">
-                        <input 
-                            type="text" 
-                            id="searchInput" 
-                            placeholder="搜索图片..." 
-                            class="w-full px-4 py-3 pl-12 bg-light/10 backdrop-blur-sm border border-light/20 rounded-full text-light placeholder-light/60 focus:outline-none focus:ring-2 focus:ring-primary focus:border-transparent transition-all"
-                        >
-                        <i class="fa fa-search absolute left-4 top-1/2 transform -translate-y-1/2 text-light/60"></i>
-                    </div>
-                    <button 
-                        id="filterBtn" 
-                        class="px-6 py-3 bg-primary hover:bg-primary/90 text-white rounded-full font-medium transition-all transform hover:scale-105 flex items-center space-x-2"
-                    >
-                        <i class="fa fa-filter"></i>
-                        <span data-lang-key="gallery-filter">筛选</span>
-                    </button>
-                </div>
             </div>
         </div>
     </section>
 
     <!-- 图片展示区域 -->
-    <section class="py-12">
+    <section class="py-8 bg-gradient-to-b from-transparent to-secondary/20">
         <div class="container mx-auto px-4 sm:px-6 lg:px-8">
-            <!-- 加载指示器 -->
-            <div id="loadingIndicator" class="text-center py-12">
-                <div class="inline-block animate-spin rounded-full h-12 w-12 border-b-2 border-primary"></div>
-                <p class="mt-4 text-light/60" data-lang-key="gallery-loading">正在加载图片...</p>
-            </div>
-            
             <!-- 图片网格 -->
-            <div id="imageGrid" class="masonry-grid hidden">
-                <!-- 图片将通过JavaScript动态加载 -->
-            </div>
-            
-            <!-- 加载更多按钮 -->
-            <div class="text-center mt-12">
-                <button 
-                    id="loadMoreBtn" 
-                    class="px-8 py-3 bg-primary hover:bg-primary/90 text-white rounded-full font-medium transition-all transform hover:scale-105 hidden"
-                    data-lang-key="gallery-load-more"
-                >
-                    加载更多
-                </button>
+            <div class="relative">
+                <!-- 初始加载指示器（页面顶部） -->
+                <div id="initialLoading" class="text-center py-16">
+                    <div class="inline-flex items-center px-6 py-3 bg-secondary/50 backdrop-blur-sm rounded-xl border border-light/10">
+                        <div class="animate-spin rounded-full h-6 w-6 border-2 border-primary border-t-transparent mr-3"></div>
+                        <span class="text-light/80" data-cn="初始化加载中..." data-en="Initial loading...">初始化加载中...</span>
+                    </div>
+                </div>
+
+                <!-- 图片网格容器 -->
+                <div id="imageGrid" class="masonry-grid hidden"></div>
+
+                <!-- 底部加载指示器（滚动加载时显示） -->
+                <div id="bottomLoading" class="bottom-loading">
+                    <div class="inline-flex items-center">
+                        <div class="animate-spin rounded-full h-5 w-5 border-2 border-primary border-t-transparent mr-2"></div>
+                        <span class="text-light/80" data-cn="加载更多图片..." data-en="Loading more images...">加载更多图片...</span>
+                    </div>
+                </div>
+
+                <!-- 没有更多数据提示 -->
+                <div id="noMoreData" class="no-more-data" data-cn="没有更多图片了" data-en="No more images">没有更多图片了</div>
             </div>
         </div>
     </section>
@@ -165,7 +203,11 @@
                 >
                 <div class="absolute bottom-0 left-0 right-0 bg-gradient-to-t from-dark/80 to-transparent p-6 rounded-b-lg">
                     <h3 id="modalTitle" class="text-xl font-bold text-light mb-2"></h3>
-                    <p id="modalDescription" class="text-light/80"></p>
+                    <p id="modalDescription" class="text-light/80 text-sm flex flex-wrap gap-2">
+                        <span id="modalTopic" class="bg-primary/20 text-primary px-2 py-1 rounded text-xs"></span>
+                        <span id="modalDate" class="text-light/60 text-xs"></span>
+                        <span id="modalSize" class="text-light/60 text-xs"></span>
+                    </p>
                 </div>
             </div>
         </div>
@@ -174,199 +216,455 @@
     <!-- 页脚将通过组件加载器自动加载 -->
     <div id="footer-container"></div>
 
-    <!-- 页面特定JavaScript -->
+    <!-- 外部依赖 -->
+    <script src="https://code.jquery.com/jquery-3.6.4.min.js"></script>
+    <!-- 公共组件（若实际项目中存在，保留；若无，可注释） -->
+    <script src="js/main.js"></script>
+    <script src="js/components.js"></script>
+    <script src="js/language.js"></script>
+
+    <!-- 页面核心逻辑 -->
     <script>
-        // 示例图片数据
-        const imageData = [
-            {
-                src: 'image/1.jpg',
-                title: '勤劳的牛马',
-                description: '每天努力工作的牛马精神',
-                category: 'work'
-            },
-            {
-                src: 'image/2.jpg',
-                title: '快乐的牛马',
-                description: '工作之余的快乐时光',
-                category: 'fun'
-            },
-            {
-                src: 'image/3.jpg',
-                title: '团结的牛马',
-                description: '团队合作的力量',
-                category: 'team'
-            },
-            {
-                src: 'image/4.jpg',
-                title: '坚持的牛马',
-                description: '永不放弃的精神',
-                category: 'motivation'
-            },
-            {
-                src: 'image/5.jpg',
-                title: '成功的牛马',
-                description: '努力后的收获',
-                category: 'success'
-            },
-            {
-                src: 'image/6.jpg',
-                title: '创新的牛马',
-                description: '不断创新的思维',
-                category: 'innovation'
-            }
-        ];
+        // 1. 全局配置（核心参数）
+        const config = {
+            apiUrl: 'https://xiangliang.jiuer.top/tu/getImages', // 对接TP6后台接口地址
+            pageSize: 30,             // 每次加载30张图片
+            scrollThreshold: 200,     // 滚动到底部前200px触发加载
+            placeholderImg: 'image/placeholder.jpg' // 图片加载失败占位图
+        };
 
-        let currentImages = [];
-        let displayedImages = 0;
-        const imagesPerLoad = 12;
+        // 2. 全局状态
+        let state = {
+            currentPage: 1,       // 当前页码
+            totalCount: 0,        // 后台返回的总图片数
+            displayedCount: 0,    // 已显示的图片数
+            isLoading: false,     // 是否正在加载（避免重复请求）
+            hasMore: true,        // 是否还有更多数据
+            scrollListener: null  // 滚动监听函数（用于后续移除）
+        };
 
-        // 初始化页面
-        document.addEventListener('DOMContentLoaded', function() {
-            currentImages = [...imageData];
-            loadImages();
-            setupEventListeners();
+        // 3. 初始化页面
+        $(document).ready(function() {
+            // 初始化图片加载
+            initImageLoad();
+            // 绑定模态框ESC关闭事件
+            bindModalEscClose();
         });
 
-        // 设置事件监听器
-        function setupEventListeners() {
-            // 搜索功能
-            document.getElementById('searchInput').addEventListener('input', function(e) {
-                const searchTerm = e.target.value.toLowerCase();
-                currentImages = imageData.filter(img => 
-                    img.title.toLowerCase().includes(searchTerm) || 
-                    img.description.toLowerCase().includes(searchTerm)
-                );
-                displayedImages = 0;
-                document.getElementById('imageGrid').innerHTML = '';
-                loadImages();
+        // 4. 加载公共组件（导航/页脚，根据实际项目调整）
+        function loadCommonComponents() {
+            // 示例：加载导航栏（若组件接口存在）
+            $('#header-container').load('components/header.html', function() {
+                // 导航栏加载后的初始化（如语言切换）
+                initLanguage();
             });
-
-            // 加载更多按钮
-            document.getElementById('loadMoreBtn').addEventListener('click', loadImages);
-
-            // 筛选按钮（示例功能）
-            document.getElementById('filterBtn').addEventListener('click', function() {
-                // 这里可以添加筛选功能
-                alert('筛选功能开发中...');
-            });
+            // 示例：加载页脚
+            $('#footer-container').load('components/footer.html');
         }
 
-        // 加载图片
-        function loadImages() {
-            const imageGrid = document.getElementById('imageGrid');
-            const loadingIndicator = document.getElementById('loadingIndicator');
-            const loadMoreBtn = document.getElementById('loadMoreBtn');
+        // 5. 初始化图片加载（首次加载 + 滚动监听）
+        function initImageLoad() {
+            // 首次加载图片
+            loadImages();
+            
+            // 绑定滚动监听（防抖处理，避免频繁触发）
+            state.scrollListener = debounce(function() {
+                // 不满足加载条件：加载中 / 无更多数据 / 初始加载未完成
+                if (state.isLoading || !state.hasMore || $('#initialLoading').is(':visible')) {
+                    return;
+                }
 
-            // 显示加载指示器
-            if (displayedImages === 0) {
-                loadingIndicator.classList.remove('hidden');
-                imageGrid.classList.add('hidden');
+                // 计算滚动位置：是否接近底部（距离底部 <= scrollThreshold）
+                const scrollTop = $(window).scrollTop();
+                const windowHeight = $(window).height();
+                const documentHeight = $(document).height();
+                const isNearBottom = (documentHeight - scrollTop - windowHeight) <= config.scrollThreshold;
+
+                if (isNearBottom) {
+                    loadImages(); // 触发加载更多
+                }
+            }, 150); // 150ms防抖，兼顾性能与体验
+
+            // 添加滚动监听
+            $(window).on('scroll', state.scrollListener);
+        }
+
+        // 6. 核心：请求后台API加载图片
+        async function loadImages() {
+            // 标记为加载中
+            state.isLoading = true;
+            // 显示加载指示器（首次加载显示顶部，后续显示底部）
+            if (state.currentPage === 1) {
+                $('#initialLoading').show();
+            } else {
+                $('#bottomLoading').addClass('active');
             }
 
-            // 模拟加载延迟
-            setTimeout(() => {
-                const imagesToLoad = currentImages.slice(displayedImages, displayedImages + imagesPerLoad);
-                
-                imagesToLoad.forEach((imageInfo, index) => {
-                    const imageElement = createImageElement(imageInfo, displayedImages + index);
-                    imageGrid.appendChild(imageElement);
+            try {
+                // 6.1 构造请求参数（对接TP6接口参数）
+                const params = {
+                    page: state.currentPage,
+                    limit: config.pageSize,
+                    // 若需要筛选（如话题ID），可添加：topic_id: state.currentTopicId
+                };
+
+                // 6.2 发送API请求（对接TP6后台）
+                const response = await $.ajax({
+                    url: config.apiUrl,
+                    type: 'GET',
+                    dataType: 'json',
+                    data: params,
+                    timeout: 10000 // 10秒超时保护
                 });
 
-                displayedImages += imagesToLoad.length;
-
-                // 隐藏加载指示器，显示图片网格
-                loadingIndicator.classList.add('hidden');
-                imageGrid.classList.remove('hidden');
-
-                // 显示或隐藏加载更多按钮
-                if (displayedImages < currentImages.length) {
-                    loadMoreBtn.classList.remove('hidden');
-                } else {
-                    loadMoreBtn.classList.add('hidden');
+                // 6.3 解析后台响应（TP6接口返回格式：{code:1, msg:"", data:{list:[...], pagination:{total:xxx, ...}}}）
+                if (response.code !== 1 || !response.data || !Array.isArray(response.data.list)) {
+                    throw new Error(response.msg || '后台返回数据格式错误');
                 }
-            }, 500);
+
+                const { list: imageList, pagination } = response.data;
+                state.totalCount = pagination.total; // 更新总图片数
+
+                // 6.4 处理图片数据（映射后台字段到前端需要的格式）
+                const formattedImages = formatImageData(imageList);
+
+                // 6.5 渲染图片到页面
+                renderImages(formattedImages);
+
+                // 6.6 更新状态（判断是否还有更多数据）
+                state.displayedCount += formattedImages.length;
+                state.hasMore = state.displayedCount < state.totalCount;
+                state.currentPage += 1; // 页码+1，为下次加载准备
+
+                // 6.7 无数据处理（首次加载无图片）
+                if (state.currentPage === 1 && formattedImages.length === 0) {
+                    $('#imageGrid').html(`
+                        <div class="col-span-full text-center py-16 text-light/70">
+                            <i class="fa fa-picture-o text-4xl mb-4"></i>
+                            <p data-cn="暂无图片数据" data-en="No image data available">暂无图片数据</p>
+                        </div>
+                    `).removeClass('hidden');
+                }
+
+            } catch (error) {
+                // 6.8 错误处理（显示提示，允许重试）
+                console.error('图片加载失败:', error);
+                showToast(
+                    state.currentPage === 1 
+                        ? '初始化加载失败，点击重试' 
+                        : '加载更多失败，点击重试', 
+                    'error',
+                    () => loadImages() // 点击提示重试
+                );
+            } finally {
+                // 6.9 结束加载状态（隐藏加载指示器）
+                state.isLoading = false;
+                $('#initialLoading').hide();
+                $('#bottomLoading').removeClass('active');
+                // 若没有更多数据，显示提示并移除滚动监听
+                if (!state.hasMore) {
+                    $('#noMoreData').show();
+                    $(window).off('scroll', state.scrollListener);
+                }
+            }
         }
 
-        // 创建图片元素
-        function createImageElement(imageInfo, index) {
-            const div = document.createElement('div');
-            div.className = 'masonry-item';
-            
-            // 随机高度以创建瀑布流效果
-            const heights = ['h-48', 'h-56', 'h-64', 'h-72', 'h-80'];
-            const randomHeight = heights[Math.floor(Math.random() * heights.length)];
-            
-            div.innerHTML = `
-                <div class="bg-light/10 backdrop-blur-sm rounded-lg overflow-hidden shadow-lg hover:shadow-2xl transition-all duration-300 image-hover cursor-pointer" onclick="openModal('${imageInfo.src}', '${imageInfo.title}', '${imageInfo.description}')">
-                    <div class="relative ${randomHeight}">
-                        <img 
-                            src="${imageInfo.src}" 
-                            alt="${imageInfo.title}" 
-                            class="w-full h-full object-cover"
-                            loading="lazy"
-                            onerror="this.src='image/placeholder.jpg'"
-                        >
-                        <div class="absolute inset-0 bg-gradient-to-t from-dark/60 via-transparent to-transparent opacity-0 hover:opacity-100 transition-opacity duration-300">
-                            <div class="absolute bottom-4 left-4 right-4">
-                                <h3 class="text-light font-bold text-lg mb-1">${imageInfo.title}</h3>
-                                <p class="text-light/80 text-sm">${imageInfo.description}</p>
+        // 7. 格式化后台数据（映射后台字段到前端渲染字段）
+        function formatImageData(rawList) {
+            return rawList.map(raw => ({
+                id: raw.id, // 图片ID（后台主键）
+                src: raw.image_url, // 图片URL（后台返回的image_url）
+                title: raw.topic_name || 'NIUMA Meme', // 标题（用话题名作为标题）
+                topic: raw.topic_name || '未分类', // 话题名称
+                uploadDate: formatDate(raw.create_time), // 上传时间（格式化）
+                fileSize: formatFileSize(raw.file_size), // 文件大小（格式化）
+                width: raw.width, // 图片宽度
+                height: raw.height, // 图片高度
+                // 点赞/点踩（若后台未实现，默认0；后续可扩展）
+                likes: raw.likes,
+                dislikes: raw.dislikes,
+                userLiked: false,
+                userDisliked: false
+            }));
+        }
+
+        // 8. 渲染图片到瀑布流网格
+        function renderImages(images) {
+            const $grid = $('#imageGrid');
+            if (images.length === 0) return;
+
+            // 遍历图片，生成DOM元素
+            images.forEach(img => {
+                // 随机高度（瀑布流效果，基于图片实际宽高比例优化）
+                const aspectRatio = img.width / img.height;
+                const colWidth = $(window).width() < 640 ? $(window).width() - 32 : 280; // 列宽估算
+                const randomHeight = Math.min(Math.max(Math.round(colWidth / aspectRatio), 200), 600);
+
+                const $item = $(`
+                    <div class="masonry-item">
+                        <div class="bg-light/10 backdrop-blur-sm rounded-lg overflow-hidden shadow-lg hover:shadow-2xl transition-all duration-300 image-hover cursor-pointer" 
+                             data-image-id="${img.id}">
+                            <div class="relative" style="height: ${randomHeight}px;">
+                                <img 
+                                    src="${img.src}" 
+                                    alt="${img.title}" 
+                                    class="w-full h-full object-cover"
+                                    loading="lazy" // 懒加载（优化性能）
+                                    onerror="this.src='${config.placeholderImg}'" // 加载失败占位图
+                                >
+                                
+                                <!-- 点赞和点踩按钮 - 一直显示 -->
+                                <div class="absolute top-3 right-3 flex gap-2 z-10">
+                                    <button class="like-btn bg-green-500/20 hover:bg-green-500/40 text-green-400 hover:text-green-300 p-2 rounded-full transition-all transform hover:scale-110 backdrop-blur-sm" data-img-id="${img.id}" data-cn="点赞" data-en="Like" title="点赞">
+                                        <i class="fa fa-thumbs-up text-sm"></i>
+                                        <span class="like-count ml-1 text-xs">${img.likes || 0}</span>
+                                    </button> 
+                                    <button class="dislike-btn bg-red-500/20 hover:bg-red-500/40 text-red-400 hover:text-red-300 p-2 rounded-full transition-all transform hover:scale-110 backdrop-blur-sm" data-img-id="${img.id}" data-cn="点踩" data-en="Dislike" title="点踩">
+                                        <i class="fa fa-thumbs-down text-sm"></i>
+                                        <span class="dislike-count ml-1 text-xs">${img.dislikes || 0}</span>
+                                    </button>
+                                </div>
+                                
+                                <!-- 图片hover信息层 -->
+                                <div class="absolute inset-0 bg-gradient-to-t from-dark/80 via-transparent to-transparent opacity-0 hover:opacity-100 transition-opacity duration-300">
+                                     
+                                    <div class="absolute bottom-3 left-3 right-3">
+                                        <h3 class="text-light font-bold text-sm mb-1 truncate">${img.title}</h3>
+                                        <div class="flex flex-wrap gap-1 text-xs text-light/70">
+                                            <span>${img.uploadDate}</span>
+                                            <span>•</span>
+                                            <span>${img.fileSize}</span>
+                                        </div>
+                                    </div>
+                                </div> 
                             </div>
                         </div>
                     </div>
-                </div>
-            `;
-            
-            return div;
-        }
+                `);
 
-        // 打开模态框
-        function openModal(src, title, description) {
-            const modal = document.getElementById('imageModal');
-            const modalImage = document.getElementById('modalImage');
-            const modalTitle = document.getElementById('modalTitle');
-            const modalDescription = document.getElementById('modalDescription');
+                // 绑定图片点击事件（打开模态框）
+                $item.find('.image-hover').on('click', () => openModal(img));
+                
+                // 绑定点赞和点踩事件
+                 $item.find('.like-btn').on('click', async function(e) {
+            e.stopPropagation(); // 阻止触发图片点击事件
+            const $btn = $(this);
+            const imgId = $btn.data('img-id');
+            const isLiked = $btn.data('liked');
 
-            modalImage.src = src;
-            modalImage.alt = title;
-            modalTitle.textContent = title;
-            modalDescription.textContent = description;
-
-            modal.classList.remove('hidden');
-            document.body.style.overflow = 'hidden';
-        }
-
-        // 关闭模态框
-        function closeModal() {
-            const modal = document.getElementById('imageModal');
-            modal.classList.add('hidden');
-            document.body.style.overflow = 'auto';
-        }
-
-        // ESC键关闭模态框
-        document.addEventListener('keydown', function(e) {
-            if (e.key === 'Escape') {
-                closeModal();
+            // 1. 禁止重复点击或已点踩时操作
+            if ($btn.prop('disabled') || isLiked) {
+                return;
             }
-        });
 
-        // 懒加载优化
-        if ('IntersectionObserver' in window) {
-            const imageObserver = new IntersectionObserver((entries, observer) => {
-                entries.forEach(entry => {
-                    if (entry.isIntersecting) {
-                        const img = entry.target;
-                        img.src = img.dataset.src;
-                        img.classList.remove('lazy');
-                        imageObserver.unobserve(img);
+            // 2. 按钮加载状态
+            $btn.prop('disabled', true).addClass('opacity-70');
+
+            try {
+                // 3. 发送POST请求到后端点赞接口
+                const response = await $.ajax({
+                    url: `${config.apiUrl.replace('getImages', 'likeImage')}`, // 拼接点赞接口URL（如 /tu/likeImage）
+                    type: 'POST',
+                    dataType: 'json',
+                    data: { image_id: imgId }, // 传递图片ID
+                    headers: {
+                        'Content-Type': 'application/x-www-form-urlencoded' // 确保参数正确传递
                     }
                 });
+
+                // 4. 处理成功响应
+                if (response.code === 1 && response.data) {
+                    const newLikeCount = response.data.likes;
+                    // 更新点赞数显示
+                    $btn.find('.like-count').text(newLikeCount);
+                    // 更新按钮状态（标记为已点赞）
+                    $btn.data('liked', true).addClass('bg-green-500/40 text-green-300');
+                    // 互斥逻辑：取消点踩状态（如果已点踩）
+                    const $dislikeBtn = $item.find('.dislike-btn');
+                    if ($dislikeBtn.data('disliked')) {
+                        $dislikeBtn.data('disliked', false).removeClass('bg-red-500/40 text-red-300');
+                    }
+                    // 显示成功提示
+                    showToast('点赞成功', 'success');
+                } else {
+                    throw new Error(response.msg || '点赞失败');
+                }
+
+            } catch (error) {
+                // 5. 处理错误
+                console.error('点赞失败:', error);
+                showToast(error.message || '点赞失败，请稍后重试', 'error');
+
+            } finally {
+                // 6. 恢复按钮状态
+                $btn.prop('disabled', false).removeClass('opacity-70');
+            }
+        });
+        
+        // --------------- 点踩事件处理（核心修改）---------------
+        $item.find('.dislike-btn').on('click', async function(e) {
+            e.stopPropagation();
+            const $btn = $(this);
+            const imgId = $btn.data('img-id');
+            const isDisliked = $btn.data('disliked');
+
+            // 1. 禁止重复点击或已点赞时操作
+            if ($btn.prop('disabled') || isDisliked) {
+                return;
+            }
+
+            // 2. 按钮加载状态
+            $btn.prop('disabled', true).addClass('opacity-70');
+
+            try {
+                // 3. 发送POST请求到后端点踩接口
+                const response = await $.ajax({
+                    url: `${config.apiUrl.replace('getImages', 'dislikeImage')}`, // 拼接点踩接口URL（如 /tu/dislikeImage）
+                    type: 'POST',
+                    dataType: 'json',
+                    data: { image_id: imgId },
+                    headers: {
+                        'Content-Type': 'application/x-www-form-urlencoded'
+                    }
+                });
+
+                // 4. 处理成功响应
+                if (response.code === 1 && response.data) {
+                    const newDislikeCount = response.data.dislikes;
+                    // 更新点踩数显示
+                    $btn.find('.dislike-count').text(newDislikeCount);
+                    // 更新按钮状态（标记为已点踩）
+                    $btn.data('disliked', true).addClass('bg-red-500/40 text-red-300');
+                    // 互斥逻辑：取消点赞状态（如果已点赞）
+                    const $likeBtn = $item.find('.like-btn');
+                    if ($likeBtn.data('liked')) {
+                        $likeBtn.data('liked', false).removeClass('bg-green-500/40 text-green-300');
+                    }
+                    // 显示成功提示
+                    showToast('点踩成功', 'info');
+                } else {
+                    throw new Error(response.msg || '点踩失败');
+                }
+
+            } catch (error) {
+                // 5. 处理错误
+                console.error('点踩失败:', error);
+                showToast(error.message || '点踩失败，请稍后重试', 'error');
+
+            } finally {
+                // 6. 恢复按钮状态
+                $btn.prop('disabled', false).removeClass('opacity-70');
+            }
+        });
+                
+                // 添加到网格
+                $grid.append($item); 
             });
 
-            // 观察所有懒加载图片
-            document.querySelectorAll('img[data-src]').forEach(img => {
-                imageObserver.observe(img);
+            // 显示图片网格（首次加载时从hidden改为显示）
+            $grid.removeClass('hidden');
+        }
+
+        // 9. 打开图片模态框
+        function openModal(img) {
+            $('#modalImage').attr({
+                src: img.src,
+                alt: img.title
+            }).on('error', function() {
+                $(this).attr('src', config.placeholderImg);
+            });
+            $('#modalTitle').text(img.title);
+            $('#modalTopic').text(img.topic);
+            $('#modalDate').text(img.uploadDate);
+            $('#modalSize').text(`${img.width}×${img.height} · ${img.fileSize}`);
+            
+            // 显示模态框，禁止页面滚动
+            $('#imageModal').removeClass('hidden');
+            $('body').css('overflow', 'hidden');
+        }
+
+        // 10. 关闭图片模态框
+        function closeModal() {
+            $('#imageModal').addClass('hidden');
+            $('body').css('overflow', 'auto');
+            // 清空模态框图片（避免缓存问题）
+            $('#modalImage').attr('src', '');
+        }
+
+        // 11. 绑定ESC键关闭模态框
+        function bindModalEscClose() {
+            $(document).on('keydown', function(e) {
+                if (e.key === 'Escape' && !$('#imageModal').is(':hidden')) {
+                    closeModal();
+                }
             });
         }
+
+        // 12. 工具函数：时间格式化（后台create_time → 友好显示，如2024-07-01）
+        function formatDate(rawDate) {
+            if (!rawDate) return '';
+            const date = new Date(rawDate);
+            return date.toLocaleDateString('zh-CN', {
+                year: 'numeric',
+                month: '2-digit',
+                day: '2-digit'
+            }).replace(/\//g, '-');
+        }
+
+        // 13. 工具函数：文件大小格式化（字节 → KB/MB，如29KB）
+        function formatFileSize(bytes) {
+            if (bytes < 1024) return `${bytes}B`;
+            if (bytes < 1024 * 1024) return `${(bytes / 1024).toFixed(0)}KB`;
+            return `${(bytes / (1024 * 1024)).toFixed(1)}MB`;
+        }
+
+        // 14. 工具函数：防抖（避免滚动频繁触发）
+        function debounce(func, wait) {
+            let timeout;
+            return function(...args) {
+                clearTimeout(timeout);
+                timeout = setTimeout(() => func.apply(this, args), wait);
+            };
+        }
+
+        // 15. 工具函数：显示提示消息（可点击重试）
+        function showToast(message, type = 'info', retryCallback = null) {
+            const colorMap = {
+                success: 'bg-green-500',
+                error: 'bg-red-500',
+                info: 'bg-blue-500'
+            };
+            const $toast = $(`
+                <div class="fixed top-4 right-4 ${colorMap[type]} text-white px-4 py-3 rounded-lg shadow-lg z-50 toast-message flex items-center gap-2">
+                    <span>${message}</span>
+                    ${retryCallback ? '<button class="text-white/90 hover:text-white"><i class="fa fa-refresh"></i></button>' : ''}
+                </div>
+            `);
+
+            $('body').append($toast);
+
+            // 点击重试
+            if (retryCallback) {
+                $toast.find('button').on('click', function() {
+                    $toast.remove();
+                    retryCallback();
+                });
+            }
+
+            // 自动消失
+            setTimeout(() => {
+                $toast.fadeOut(300, () => $toast.remove());
+            }, retryCallback ? 5000 : 3000);
+        }
+
+        // 16. 语言初始化（若需要多语言支持，根据实际组件调整）
+        // function initLanguage() {
+        //     // 示例：根据页面语言切换文本（需配合language.js）
+        //     const currentLang = localStorage.getItem('lang') || 'cn';
+        //     $('[data-cn],[data-en]').each(function() {
+        //         $(this).text($(this).data(currentLang));
+        //     });
+        // }
     </script>
 </body>
 </html>
